@@ -32,7 +32,7 @@ def montecarlots(board, player, game, tree=None):
 
 
 class MCNode:
-    def __init__(self, state: Board, color, nb_king_moved, parent=None, max_it=5, move: Move = None):
+    def __init__(self, state: Board, color, nb_king_moved, parent=None, max_it=8, move: Move = None):
         """
         Class that modelizes a node as manipulated in an MCTS
         :param state:   Current board

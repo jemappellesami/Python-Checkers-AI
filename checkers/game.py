@@ -2,6 +2,7 @@ import pygame
 from .constants import RED, WHITE, BLUE, SQUARE_SIZE, ROWS, COLS
 from checkers.board import Board
 from .move import Move
+import time
 
 
 
@@ -17,11 +18,29 @@ class Game:
         self.draw_valid_moves(self.valid_moves)
         pygame.display.update()
 
+    def update_log(self, move, move_time, ai_type):
+        color = 0 if self.turn == WHITE else 1
+        log_file = open(self.log_file_name, "a")
+        log_file.write(
+            "{}; {}; {}; {}; {}; {}\n".format(int(self.num_turn), color, ai_type, move, len(move.skip), move_time)
+        )
+        log_file.close()
     def _init(self):
         self.selected = None
         self.board = Board()
         self.turn = WHITE
+        self.num_turn = 1
         self.valid_moves = {}
+
+        # Log file management
+        self._init_log()
+
+    def _init_log(self):
+        # TODO : link the parameters (weights of each heuristic, and the max_it parameters of the mcts)
+        self.log_file_name = "heuristic_stats/game_maxit_8_h1_1_h2_1_{}.csv".format(time.time())
+        log_file = open(self.log_file_name, "w")
+        log_file.write("Turn; Color; AI; Move; Skip; Time \n")
+        log_file.close()
 
     def winner(self):
         if self.king_moved >= 20:
@@ -92,6 +111,7 @@ class Game:
         self.analyze_move(parent_action)
         self.board = board
         self.change_turn()
+        self.num_turn += 0.5
 
     def analyze_move(self, move: Move):
         # Need to check if this was a king move and if there was a capture.

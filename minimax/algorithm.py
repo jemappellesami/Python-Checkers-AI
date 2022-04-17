@@ -59,18 +59,19 @@ def get_all_moves(board, color, game) -> List[Move]:
     for piece in board.get_all_pieces(color):
         valid_moves = board.get_valid_moves(piece)[1]
         for destination, skip in valid_moves.items():
-            draw_moves(game, board, piece)
+            # draw_moves(game, board, piece)
             temp_board = deepcopy(board)
             temp_piece = temp_board.get_piece(piece.row, piece.col)
             new_move = Move(temp_board, color, temp_piece, destination, skip)
             moves.append(new_move)
     return moves
 # test
-def draw_moves(game, board, piece):
-    valid_moves = board.get_valid_moves(piece)[1]
-    board.draw(game.win)
-    pygame.draw.circle(game.win, (0,255,0), (piece.x, piece.y), 50, 5)
-    game.draw_valid_moves(valid_moves.keys())
-    pygame.display.update()
-    #pygame.time.delay(100)
+
+# def draw_moves(game, board, piece):
+#     valid_moves = board.get_valid_moves(piece)[1]
+#     board.draw(game.win)
+#     pygame.draw.circle(game.win, (0,255,0), (piece.x, piece.y), 50, 5)
+#     game.draw_valid_moves(valid_moves.keys())
+#     pygame.display.update()
+#     #pygame.time.delay(100)
 
