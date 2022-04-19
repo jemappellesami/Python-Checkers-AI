@@ -1,4 +1,6 @@
 # Let's gooooo
+from collections import OrderedDict
+from math import factorial, comb
 from typing import List
 
 from checkers.board import Board
@@ -21,6 +23,11 @@ class Villager:
         self.safe_heuri = safe_heuri
         self.exploit_param = exploit
         self.reward = reward
+
+    def __repr__(self):
+        return "it : " + str(self.it) + '\n safe_heuri : ' \
+               + str(self.safe_heuri) + '\n exploit_param : ' \
+               + str(self.exploit_param)
 
 
 def init_population() -> List[Villager]:
@@ -90,24 +97,87 @@ def set_parameters(iterations, safe_heuristic, exploitation):
     MCNode.set_max_it(iterations)
 
 
+def parent_comb(parents, n_comb: int):
+    """
+    :param n_comb: number of combinations to get
+    :param parents: list of parents to merge later
+    :return: n_comb combinations of parents
+    """
+    max_n_comb = comb(len(parents), 2)
+    if n_comb > max_n_comb:
+        print("Asked for more couples than available")
+        n_comb = max_n_comb
+    couples = []
+    while len(couples) < n_comb:
+        j = random.randint(0, len(parents) - 1)
+        i = random.randint(0, len(parents) - 1)
+        while i == j:
+            i = random.randint(0, len(parents) - 1)
+        couple = {parents[i], parents[j]}
+        couples.append(couple) if couple not in couples else None
+    return couples
+
+
+def merge_coupe(couple):
+    # TODO : define a merging method
+    pass
+
+
+def evolve_population(population: List):
+    # TODO: select x% of best villagers and fuse them and perform mutations
+    new_population = merge_population(population)
+    mutate_population(new_population)
+
+    return new_population
+
+
+def mutate_population(new_population):
+    # TODO
+    pass
+
+
+def merge_population(population: List):
+    population.sort(key=lambda x: x.reward, reverse=True)
+
+    new_population = []
+    n_keep = 2
+
+    # Keep best candidates
+    for i in range(n_keep):
+        new_population.append(population[i])
+
+    # Merge them to get possibly good children
+    for couple in parent_comb(new_population, len(population) - n_keep):
+        new_child = merge_coupe(couple)
+        new_population.append(new_child)
+    while len(new_population) <= len(population):
+        # Not enough children, complete with more previous generation villagers
+        new_population.append(population[n_keep])
+        n_keep += 1
+
+    return new_population
+
+
 def main():
     p = ["minimax", "mcts"]
 
-    optimal = False
+    converged = False
     population = init_population()
     j = 0
-    while not optimal:
+    while not converged:
         for villager in population:
             set_parameters(villager.it, villager.safe_heuri, villager.exploit_param)
             reward = 0
             for i in range(NB_GAMES):
                 j += 1
                 reward += play_game(p)
-                print(j, "'th game is over")
+                print(j, "th game is over")
             villager.reward = reward
-        population.sort(key=lambda x: x.reward, reverse=True)
-        # TODO: select x% of best villagers and fuse them
-        break
+
+        # population = evolve_population(population)
+        converged = True  # TODO : change
+    population.sort(key=lambda x: x.reward, reverse=True)
+    print(population[0])
 
 
 if __name__ == '__main__':
