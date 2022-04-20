@@ -1,6 +1,6 @@
 # Assets: https://techwithtim.net/wp-content/uploads/2020/09/assets.zip
 import pygame
-
+import time
 from checkers.constants import WIDTH, HEIGHT, SQUARE_SIZE, RED, WHITE
 from checkers.game import Game
 from minimax.algorithm import minimax
@@ -9,6 +9,8 @@ import random
 import argparse
 
 FPS = 60
+
+
 random.seed(15)
 
 
@@ -55,7 +57,7 @@ def minimax_ai_move(game, tree):
         # print("Player {} had no moves left".format(game.turn))  # DEBUG
         new_board = game.board
     game.ai_move(new_board, chosen_move)
-    return tree
+    return tree, chosen_move
 
 
 def human_move(game):
@@ -66,6 +68,7 @@ def human_move(game):
     chosen_move.compute_final_state()
 
     game.ai_move(chosen_move.final_state)
+    return chosen_move
     # FIXME: implement the correct function, currently is a copy of minimax_ai_move
 
 
@@ -73,21 +76,25 @@ def make_move(game, p, n, run, tree):
     """
     Executes a move on the board determined by the arguments chosen at game launch.
     """
+    start_time = time.time()
     if p[n] == "human":
-        human_move(game)
+        best_move = human_move(game)
     else:
-        run, tree = make_ai_move(game, n, p, run, tree)
-    return run, tree
+        run, tree, best_move = make_ai_move(game, n, p, run, tree)
+    end_time = time.time()
+    execution_time = end_time - start_time
+
+    return run, tree, best_move, execution_time
 
 
 def make_ai_move(game, n, p, run, tree):
     # print("Player {} ({} AI) is thinking".format(n + 1, p[n].upper()))
     if p[n] == "minimax":
-        tree = minimax_ai_move(game, tree)
+        tree, best_move = minimax_ai_move(game, tree)
     elif p[n] == "mcts":
         run, tree, best_move = mcts_ai_move(game, run, tree)
     # print("Player {} ({} AI) has made its move".format(n + 1, p[n].upper()))
-    return run, tree
+    return run, tree, best_move
 
 
 def main():
@@ -132,6 +139,7 @@ def main():
     while run:
         clock.tick(FPS)
 
+        # TODO : refactor this shit
         if game.turn == WHITE:
             run, most_recent_tree = make_move(game, p, 0, run, most_recent_tree)
             if not run:
