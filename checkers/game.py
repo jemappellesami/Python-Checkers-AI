@@ -1,4 +1,6 @@
 import pygame
+
+from montecarlo.algorithm import MCNode
 from .constants import RED, WHITE, BLUE, SQUARE_SIZE, ROWS, COLS
 from checkers.board import Board
 from .move import Move
@@ -7,17 +9,20 @@ import time
 
 
 class Game:
-    def __init__(self, win=None, benchmark=False, parameters=[8, 3, 1]):
-        heuristic_weights, max_it = parameters[1:], parameters[0]
-        self._parameters_init(max_it, heuristic_weights)
+    def __init__(self, win=None, parameters=(8, 2, 1)):
+        max_it = parameters[0]
+        safe_heuri_weight = parameters[1]
+        exploit_param = parameters[2]
+        self._parameters_init(max_it, safe_heuri_weight, exploit_param)
         self._init()
         self.display = win
         self.king_moved = 0
 
-    def _parameters_init(self, max_it, heuristic_weights):
+    def _parameters_init(self, max_it, safe_heuri_weight, exploit_param):
         # first, default weights (to make sure the attribute is instanciated)
-        Board.set_safe_heuri_param(heuristic_weights)
+        Board.set_heuri_weights(safe_heuri_weight)
         self.max_it = max_it
+        MCNode.set_exploit(exploit_param)
 
 
     def update(self):
@@ -51,8 +56,7 @@ class Game:
         self._init_log()
 
     def _init_log(self):
-        # TODO : refactor for heuristic weights
-        self.log_file_name = "heuristic_stats/Fournée2/m{}_h1_{}_h2_{}_{}.csv".format(self.max_it, self.heuristic_weights[0], self.heuristic_weights[1], time.time())
+        self.log_file_name = "heuristic_stats/Fournée2/m{}_h{}_{}.csv".format(self.max_it, Board.safe_heuri_weight, time.time())
         log_file = open(self.log_file_name, "w")
         log_file.write("Turn; Color; AI; Move; Skip; Time; Num. Reds; Num. Whites \n")
         log_file.close()

@@ -64,7 +64,7 @@ def human_move(game):
     """
     Executes a move on the board determined by the player.
     """
-    value, chosen_move = minimax(game.get_board(), 3, game) # TODO pourquoi c'est un minimax ?
+    value, chosen_move = minimax(game.get_board(), 3, game)
     chosen_move.compute_final_state()
 
     game.ai_move(chosen_move.final_state)
@@ -93,6 +93,10 @@ def make_ai_move(game, n, p, run, tree):
         tree, best_move = minimax_ai_move(game, tree)
     elif p[n] == "mcts":
         run, tree, best_move = mcts_ai_move(game, run, tree)
+    else :
+        print("Error with AI option")
+        best_move = None
+        exit()
     # print("Player {} ({} AI) has made its move".format(n + 1, p[n].upper()))
     return run, tree, best_move
 
@@ -139,13 +143,12 @@ def main():
     while run:
         clock.tick(FPS)
 
-        # TODO : refactor this shit
         if game.turn == WHITE:
-            run, most_recent_tree = make_move(game, p, 0, run, most_recent_tree)
+            run, most_recent_tree, best_move, execution_time = make_move(game, p, 0, run, most_recent_tree)
             if not run:
                 winner = "RED"
         elif game.turn == RED:
-            run, most_recent_tree = make_move(game, p, 1, run, most_recent_tree)
+            run, most_recent_tree, best_move, execution_time = make_move(game, p, 1, run, most_recent_tree)
             if not run:
                 winner = "WHITE"
 

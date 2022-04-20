@@ -9,7 +9,7 @@ from .piece import Piece
 
 class Board:
 
-    safe_heuri_param = 1
+    safe_heuri_weight = 1
 
     def __init__(self):
         self.board = []
@@ -17,8 +17,8 @@ class Board:
         self.red_kings = self.white_kings = 0
         self.create_board()
 
-    def set_safe_heuri_param(safe_heuri):
-        Board.safe_heuri_param = safe_heuri
+    def set_heuri_weights(heuri_weights):
+        Board.safe_heuri_weight = heuri_weights
 
     def draw_squares(self, win):
         win.fill(BLACK)
@@ -140,8 +140,7 @@ class Board:
         return res
 
     def eval(self, color):
-        # TODO : combine with other heuristics
-        return self.eval_piece_row_value(color) + self.eval_safe_pieces(color) * self.safe_heuri_param
+        return self.eval_piece_row_value(color) + self.eval_safe_pieces(color) * self.safe_heuri_weight
 
     def get_valid_moves(self, piece):
         moves = {}
