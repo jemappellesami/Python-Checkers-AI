@@ -71,7 +71,7 @@ def main():
 
 
                 run = True
-                game = Game(benchmark=True, parameters=parameters)
+                game = Game(benchmark=True, parameters=parameters, logging=True)
 
                 parser = argparse.ArgumentParser(description="Checkers game")
                 parser.add_argument(
