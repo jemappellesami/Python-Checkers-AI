@@ -91,6 +91,8 @@ def main():
     while run:
 
         n = 0 if game.turn == WHITE else 1
+        count_red = len(game.board.get_all_pieces(RED))
+        count_white = len(game.board.get_all_pieces(WHITE))
         run, most_recent_tree, move, move_time = make_move(game, p, n, run, most_recent_tree)
 
         # Keep track in the log file

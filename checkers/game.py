@@ -19,11 +19,11 @@ class Game:
         self.draw_valid_moves(self.valid_moves)
         pygame.display.update()
 
-    def update_log(self, move, move_time, ai_type):
+    def update_log(self, move, move_time, ai_type, count_red, count_white):
         color = 0 if self.turn == WHITE else 1
         log_file = open(self.log_file_name, "a")
         log_file.write(
-            "{}; {}; {}; {}; {}; {}\n".format(int(self.num_turn), color, ai_type, move, len(move.skip), move_time)
+            "{}; {}; {}; {}; {}; {}; {}; {}\n".format(int(self.num_turn), color, ai_type, move, len(move.skip), move_time, count_red, count_white)
         )
         log_file.close()
 
@@ -48,7 +48,7 @@ class Game:
         # TODO : link the parameters (weights of each heuristic, and the max_it parameters of the mcts)
         self.log_file_name = "heuristic_stats/game_maxit_8_h1_1_h2_1_{}.csv".format(time.time())
         log_file = open(self.log_file_name, "w")
-        log_file.write("Turn; Color; AI; Move; Skip; Time \n")
+        log_file.write("Turn; Color; AI; Move; Skip; Time; Num. Reds; Num. Whites \n")
         log_file.close()
 
     def winner(self):
