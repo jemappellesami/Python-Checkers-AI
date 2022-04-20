@@ -129,7 +129,6 @@ def main():
         run, most_recent_tree, move, move_time = make_move(game, p, n, run, most_recent_tree)
 
         # Keep track in the log file
-        game.update_log(move, move_time, p[n])
 
         print("{} ({}) has done the move {}".format(game.turn, p[n], move))
 
