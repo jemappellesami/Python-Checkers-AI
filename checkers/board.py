@@ -8,10 +8,11 @@ from .piece import Piece
 
 
 class Board:
-    def __init__(self):
+    def __init__(self, heuristic_weights=(1,1)):
         self.board = []
         self.red_left = self.white_left = 12
         self.red_kings = self.white_kings = 0
+        self.heuristic_weights = heuristic_weights
         self.create_board()
 
     def draw_squares(self, win):
@@ -134,8 +135,9 @@ class Board:
         return res
 
     def eval(self, color):
-        # TODO : combine with other heuristics
-        return self.eval_piece_row_value(color) + self.eval_safe_pieces(color)
+        h0 = self.heuristic_weights[0]
+        h1 = self.heuristic_weights[1]
+        return self.eval_piece_row_value(color)*h0 + self.eval_safe_pieces(color)*h1
 
     def get_valid_moves(self, piece):
         moves = {}

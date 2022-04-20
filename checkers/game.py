@@ -7,12 +7,21 @@ import time
 
 
 class Game:
-    def __init__(self, win=None, benchmark=False):
+    def __init__(self, win=None, benchmark=False, heuristic_weights=(1,1)):
+        self._heuristic_init(heuristic_weights)
         self._init()
         self.is_benchmark = benchmark
         self.display = win
         self.king_moved = 0
 
+    def _heuristic_init(self, heuristic_weights):
+        # first, default weights (to make sure the attribute is instanciated)
+        self.heuristic_weights = (1,1)
+        # Currently : 2 heuristics, so check that the heuristic_weights attribute is of length 2
+        if len(heuristic_weights) != 2 :
+            print("There is an error with the weights of the heuristics")
+        else :
+            self.heuristic_weights = heuristic_weights
 
     def update(self):
         self.board.draw(self.display)
@@ -36,7 +45,7 @@ class Game:
 
     def _init(self):
         self.selected = None
-        self.board = Board()
+        self.board = Board(self.heuristic_weights)
         self.turn = WHITE
         self.num_turn = 1
         self.valid_moves = {}

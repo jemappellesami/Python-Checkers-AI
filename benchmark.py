@@ -60,7 +60,7 @@ def main():
 
 
     run = True
-    game = Game(benchmark=True)
+    game = Game(benchmark=True, heuristic_weights=(3,1))
 
     parser = argparse.ArgumentParser(description="Checkers game")
     parser.add_argument(
