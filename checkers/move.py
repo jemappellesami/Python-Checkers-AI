@@ -48,7 +48,9 @@ class Move:
         return
 
     def __repr__(self):
-        return("From board {} move piece {} to {} ({} piece taken). Value = {}".format(self.origin_state, self.piece, self.loc, len(self.skip), self.value ))
+        sentence = "From board {} move piece {} to {} ({} piece taken). Value = {}".format(self.origin_state, self.piece, self.loc, len(self.skip), self.value )
+        log = "{} -> {}".format(self.piece, self.loc)
+        return log
 
     def is_equivalent_to(self, other_move):
         # TODO ajouter comparaison entre les states (les board)

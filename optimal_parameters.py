@@ -1,6 +1,7 @@
 # Let's gooooo
 from collections import OrderedDict
 from math import factorial, comb
+import time
 from typing import List
 
 from checkers.board import Board
@@ -23,6 +24,9 @@ class Villager:
         self.safe_heuri = safe_heuri
         self.exploit_param = exploit
         self.reward = reward
+
+    def list_parameters(self) -> List:
+        return [self.it, self.safe_heuri, self.exploit_param]
 
     def __repr__(self):
         return "it : " + str(self.it) + '\n safe_heuri : ' \
@@ -52,23 +56,26 @@ def make_move(game, p, run, tree):
     else:
         print("Error : game.turn is neither WHITE nor RED")
 
-    run, tree = make_ai_move(game, n, p, run, tree)
-    return run, tree
+    start = time.time()
+    run, tree, best_move = make_ai_move(game, n, p, run, tree)
+    execution_time = time.time() - start
+
+    return run, tree, best_move, execution_time
 
 
-def play_game(p) -> float:
+def play_game(p, param_list) -> float:
     """
     Play a game and return the reward of the game seen from the mcts view
     :param p: players setup
     :return: float reward value seen from mcts
     """
-    game = Game()
+    game = Game(param_list, logging=False)
     winner = 0
     most_recent_tree = None
     running = True
 
     while running:
-        running, most_recent_tree = make_move(game, p, running, most_recent_tree)
+        running, most_recent_tree, best_move, exec_time = make_move(game, p, running, most_recent_tree)
 
         if not running:
             if game.turn == WHITE:
@@ -89,12 +96,6 @@ def play_game(p) -> float:
         return 0
     else:
         return 0.5
-
-
-def set_parameters(iterations, safe_heuristic, exploitation):
-    Board.set_safe_heuri_param(safe_heuristic)
-    MCNode.set_exploit(exploitation)
-    MCNode.set_max_it(iterations)
 
 
 def parent_comb(parents, n_comb: int):
@@ -166,11 +167,10 @@ def main():
     j = 0
     while not converged:
         for villager in population:
-            set_parameters(villager.it, villager.safe_heuri, villager.exploit_param)
             reward = 0
             for i in range(NB_GAMES):
                 j += 1
-                reward += play_game(p)
+                reward += play_game(p, villager.list_parameters())
                 print(j, "th game is over")
             villager.reward = reward
 

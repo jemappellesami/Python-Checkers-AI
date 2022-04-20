@@ -37,4 +37,6 @@ class Piece:
         return self.king
 
     def __repr__(self):
-        return str(self.color) + " at (" + str(self.row) + ', ' + str(self.col) + ")"
+        long = str(self.color) + " at (" + str(self.row) + ', ' + str(self.col) + ")"
+        quick = "({},{})".format(self.row, self.col)
+        return quick

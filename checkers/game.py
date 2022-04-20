@@ -1,25 +1,66 @@
 import pygame
+
+from montecarlo.algorithm import MCNode
 from .constants import RED, WHITE, BLUE, SQUARE_SIZE, ROWS, COLS
 from checkers.board import Board
 from .move import Move
+import time
+
 
 
 class Game:
-    def __init__(self, win=None):
-        self._init(display=win is not None)
-        self.win = win
+    def __init__(self, win=None, parameters=(8, 2, 1), logging=False):
+        max_it = parameters[0]
+        safe_heuri_weight = parameters[1]
+        exploit_param = parameters[2]
+        self._parameters_init(max_it, safe_heuri_weight, exploit_param)
+        self._init(logging)
+        self.display = win
         self.king_moved = 0
 
+    def _parameters_init(self, max_it, safe_heuri_weight, exploit_param):
+        # first, default weights (to make sure the attribute is instanciated)
+        Board.set_heuri_weights(safe_heuri_weight)
+        self.max_it = max_it
+        MCNode.set_exploit(exploit_param)
+
+
     def update(self):
-        self.board.draw(self.win)
+        self.board.draw(self.display)
         self.draw_valid_moves(self.valid_moves)
         pygame.display.update()
 
-    def _init(self, display: bool):
+    def update_log(self, move, move_time, ai_type, count_red, count_white):
+        color = 0 if self.turn == WHITE else 1
+        log_file = open(self.log_file_name, "a")
+        log_file.write(
+            "{}; {}; {}; {}; {}; {}; {}; {}\n".format(int(self.num_turn), color, ai_type, move, len(move.skip), move_time, count_red, count_white)
+        )
+        log_file.close()
+
+    def update_log_winner(self, winner):
+        log_file = open(self.log_file_name, "a")
+        log_file.write(
+            "Winner : {}\n".format("White" if winner == WHITE else "Red")
+        )
+        log_file.close()
+
+    def _init(self, logging):
         self.selected = None
-        self.board = Board(display=False)
+        self.board = Board()
         self.turn = WHITE
+        self.num_turn = 1
         self.valid_moves = {}
+
+        # Log file management
+        if logging:
+            self._init_log()
+
+    def _init_log(self):
+        self.log_file_name = "heuristic_stats/Fournée2/m{}_h{}_{}.csv".format(self.max_it, Board.safe_heuri_weight, time.time())
+        log_file = open(self.log_file_name, "w")
+        log_file.write("Turn; Color; AI; Move; Skip; Time; Num. Reds; Num. Whites \n")
+        log_file.close()
 
     def winner(self):
         if self.king_moved >= 20:
@@ -72,7 +113,7 @@ class Game:
     def draw_valid_moves(self, moves):
         for move in moves:
             row, col = move
-            pygame.draw.circle(self.win, BLUE,
+            pygame.draw.circle(self.display, BLUE,
                                (col * SQUARE_SIZE + SQUARE_SIZE // 2, row * SQUARE_SIZE + SQUARE_SIZE // 2), 15)
 
     def change_turn(self):
@@ -90,6 +131,7 @@ class Game:
         self.analyze_move(parent_action)
         self.board = board
         self.change_turn()
+        self.num_turn += 0.5
 
     def analyze_move(self, move: Move):
         # Need to check if this was a king move and if there was a capture.
