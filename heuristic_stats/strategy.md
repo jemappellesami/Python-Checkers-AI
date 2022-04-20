@@ -13,3 +13,9 @@
 
 - Automatiser le benchmark
 
+
+
+# About the test
+Command that launched the tests : 
+
+`--p1 mcts --p2 minimax`

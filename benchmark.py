@@ -59,57 +59,61 @@ def make_move(game, p, n, run, tree):
 
 def main():
 
-    # Element 0 is max_iterations in the MCTS
-    # 1 is the weight for the first heuristic
-    # 2 is the weight for the second heuristic
-    parameters = [8, 3, 1]
+    for n in range(10) :
+        for i in range(10) :
+            for j in range(10) :
+                # Element 0 is max_iterations in the MCTS
+                # 1 is the weight for the first heuristic
+                # 2 is the weight for the second heuristic
+                # And we can add more heuristics
+                parameters = [n, i, j]
 
 
 
-    run = True
-    game = Game(benchmark=True, parameters=parameters)
+                run = True
+                game = Game(benchmark=True, parameters=parameters)
 
-    parser = argparse.ArgumentParser(description="Checkers game")
-    parser.add_argument(
-        "--player1",
-        "--p1",
-        "-1",
-        type=str,
-        help="Type of player for player 1",
-        required=True,
-        choices=("minimax", "mcts", "human"),
-        default="minimax",
-    )
-    parser.add_argument(
-        "--player2",
-        "--p2",
-        "-2",
-        type=str,
-        help="Type of player for player 2",
-        required=True,
-        choices=("minimax", "mcts", "human"),
-        default="mcts",
-    )
-    args = parser.parse_args()
+                parser = argparse.ArgumentParser(description="Checkers game")
+                parser.add_argument(
+                    "--player1",
+                    "--p1",
+                    "-1",
+                    type=str,
+                    help="Type of player for player 1",
+                    required=True,
+                    choices=("minimax", "mcts", "human"),
+                    default="minimax",
+                )
+                parser.add_argument(
+                    "--player2",
+                    "--p2",
+                    "-2",
+                    type=str,
+                    help="Type of player for player 2",
+                    required=True,
+                    choices=("minimax", "mcts", "human"),
+                    default="mcts",
+                )
+                args = parser.parse_args()
 
-    p = [args.player1, args.player2]
-    most_recent_tree = None
+                p = [args.player1, args.player2]
+                most_recent_tree = None
 
-    while run:
+                while run:
 
-        n = 0 if game.turn == WHITE else 1
-        count_red = len(game.board.get_all_pieces(RED))
-        count_white = len(game.board.get_all_pieces(WHITE))
-        run, most_recent_tree, move, move_time = make_move(game, p, n, run, most_recent_tree)
+                    n = 0 if game.turn == WHITE else 1
+                    count_red = len(game.board.get_all_pieces(RED))
+                    count_white = len(game.board.get_all_pieces(WHITE))
+                    run, most_recent_tree, move, move_time = make_move(game, p, n, run, most_recent_tree)
 
-        # Keep track in the log file
-        game.update_log(move, move_time, p[n], count_red, count_white)
+                    # Keep track in the log file
+                    game.update_log(move, move_time, p[n], count_red, count_white)
 
 
 
-        if game.winner() is not None:
-            run = False
+                    if game.winner() is not None:
+                        run = False
 
-    game.update_log_winner(game.winner())
+                game.update_log_winner(game.winner())
 
 main()

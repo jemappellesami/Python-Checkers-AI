@@ -57,7 +57,7 @@ class Game:
 
     def _init_log(self):
         # TODO : link the parameters (weights of each heuristic, and the max_it parameters of the mcts)
-        self.log_file_name = "heuristic_stats/game_m{}_h1_{}_h2_{}_{}.csv".format(self.max_it, self.heuristic_weights[0], self.heuristic_weights[1], time.time())
+        self.log_file_name = "heuristic_stats/Fournée1/m{}_h1_{}_h2_{}_{}.csv".format(self.max_it, self.heuristic_weights[0], self.heuristic_weights[1], time.time())
         log_file = open(self.log_file_name, "w")
         log_file.write("Turn; Color; AI; Move; Skip; Time; Num. Reds; Num. Whites \n")
         log_file.close()
