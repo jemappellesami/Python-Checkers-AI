@@ -13,7 +13,7 @@ RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 
 
-def montecarlots(board, player, game, tree=None):
+def montecarlots(board, player, game, tree=None, max_it=8):
     """
     Proceeds a Monte Carlo tree search on the given board, considering that it's given player's turn.
     A possible precomputed search tree can be given to allow deeper computations
@@ -25,14 +25,14 @@ def montecarlots(board, player, game, tree=None):
     nb_king_moved = game.king_moved
     if not tree:
         # New tree
-        tree = MCNode(board, player, nb_king_moved)
+        tree = MCNode(board, player, nb_king_moved, max_it)
     chosen_node = tree.monte_carlo_tree_search()
     chosen_node_board = chosen_node.state
     return chosen_node_board, chosen_node, chosen_node.parent_action
 
 
 class MCNode:
-    def __init__(self, state: Board, color, nb_king_moved, parent=None, max_it=8, move: Move = None):
+    def __init__(self, state: Board, color, nb_king_moved, max_it, parent=None, move: Move = None):
         """
         Class that modelizes a node as manipulated in an MCTS
         :param state:   Current board
@@ -172,7 +172,7 @@ class MCNode:
         :return:        None
         """
         self.analyze_move(move)
-        child_node = MCNode(state, parent=self, color=self.adv_color, nb_king_moved=self.nb_king_moved, move=move)
+        child_node = MCNode(state, parent=self, color=self.adv_color, nb_king_moved=self.nb_king_moved, move=move, max_it=self.max_it)
         self.children.append(child_node)
         self.children_moves.append(move)
 
@@ -228,7 +228,7 @@ class MCNode:
 
             self.analyze_move(rand_move)
             new_color = RED if last_node.color == WHITE else WHITE
-            new_child = MCNode(new_state, new_color, self.nb_king_moved, move=rand_move)
+            new_child = MCNode(new_state, new_color, self.nb_king_moved, move=rand_move, max_it=self.max_it)
             possible_moves = new_child.get_all_moves()
 
         return self.winner(new_child)

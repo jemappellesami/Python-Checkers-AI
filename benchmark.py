@@ -8,12 +8,14 @@ from montecarlo.algorithm import montecarlots, MCNode
 import argparse
 
 
+default_weights = (3, 1)
+default_max_it = 8
 
-def mcts_ai_move(game, run, tree):
+def mcts_ai_move(game, run, tree, max_it=default_max_it):
     """
     Executes a move on the board determined by the MCTS AI.
     """
-    new_board, new_tree, best_move = montecarlots(game.board,game.turn, game, tree)
+    new_board, new_tree, best_move = montecarlots(game.board,game.turn, game, tree, max_it)
     if new_board is None:
         print("end of game?")
         run = False
@@ -57,10 +59,15 @@ def make_move(game, p, n, run, tree):
 
 def main():
 
+    # Element 0 is max_iterations in the MCTS
+    # 1 is the weight for the first heuristic
+    # 2 is the weight for the second heuristic
+    parameters = [8, 3, 1]
+
 
 
     run = True
-    game = Game(benchmark=True, heuristic_weights=(3,1))
+    game = Game(benchmark=True, parameters=parameters)
 
     parser = argparse.ArgumentParser(description="Checkers game")
     parser.add_argument(

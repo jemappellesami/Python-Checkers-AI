@@ -7,16 +7,18 @@ import time
 
 
 class Game:
-    def __init__(self, win=None, benchmark=False, heuristic_weights=(1,1)):
-        self._heuristic_init(heuristic_weights)
+    def __init__(self, win=None, benchmark=False, parameters=[8, 3, 1]):
+        heuristic_weights, max_it = parameters[1:], parameters[0]
+        self._parameters_init(max_it, heuristic_weights)
         self._init()
         self.is_benchmark = benchmark
         self.display = win
         self.king_moved = 0
 
-    def _heuristic_init(self, heuristic_weights):
+    def _parameters_init(self, max_it, heuristic_weights):
         # first, default weights (to make sure the attribute is instanciated)
         self.heuristic_weights = (1,1)
+        self.max_it = max_it
         # Currently : 2 heuristics, so check that the heuristic_weights attribute is of length 2
         if len(heuristic_weights) != 2 :
             print("There is an error with the weights of the heuristics")
@@ -55,7 +57,7 @@ class Game:
 
     def _init_log(self):
         # TODO : link the parameters (weights of each heuristic, and the max_it parameters of the mcts)
-        self.log_file_name = "heuristic_stats/game_maxit_8_h1_1_h2_1_{}.csv".format(time.time())
+        self.log_file_name = "heuristic_stats/game_m{}_h1_{}_h2_{}_{}.csv".format(self.max_it, self.heuristic_weights[0], self.heuristic_weights[1], time.time())
         log_file = open(self.log_file_name, "w")
         log_file.write("Turn; Color; AI; Move; Skip; Time; Num. Reds; Num. Whites \n")
         log_file.close()
