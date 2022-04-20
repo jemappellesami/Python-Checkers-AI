@@ -7,14 +7,15 @@ import time
 
 
 class Game:
-    def __init__(self, win):
+    def __init__(self, win=None, benchmark=False):
         self._init()
-        self.win = win
+        self.is_benchmark = benchmark
+        self.display = win
         self.king_moved = 0
 
 
     def update(self):
-        self.board.draw(self.win)
+        self.board.draw(self.display)
         self.draw_valid_moves(self.valid_moves)
         pygame.display.update()
 
@@ -25,6 +26,14 @@ class Game:
             "{}; {}; {}; {}; {}; {}\n".format(int(self.num_turn), color, ai_type, move, len(move.skip), move_time)
         )
         log_file.close()
+
+    def update_log_winner(self, winner):
+        log_file = open(self.log_file_name, "a")
+        log_file.write(
+            "Winner : {}\n".format("White" if winner == WHITE else "Red")
+        )
+        log_file.close()
+
     def _init(self):
         self.selected = None
         self.board = Board()
@@ -93,7 +102,7 @@ class Game:
     def draw_valid_moves(self, moves):
         for move in moves:
             row, col = move
-            pygame.draw.circle(self.win, BLUE,
+            pygame.draw.circle(self.display, BLUE,
                                (col * SQUARE_SIZE + SQUARE_SIZE // 2, row * SQUARE_SIZE + SQUARE_SIZE // 2), 15)
 
     def change_turn(self):
@@ -117,12 +126,9 @@ class Game:
         # Need to check if this was a king move and if there was a capture.
         piece_moved = move.get_piece()
         if piece_moved.is_king():
-            print("Dame jouée")
             self.king_moved += 1
             # If no capture, we do nothing. If capture, count is back to zero.
             if move.get_skip() is not None and len(move.get_skip()) != 0:
-                print("Capture!")
                 self.king_moved = 0
         else:
-            print("Pion joué")
             self.king_moved = 0
