@@ -59,9 +59,9 @@ def make_move(game, p, n, run, tree):
 
 def main():
 
-    for n in range(10) :
-        for i in range(10) :
-            for j in range(10) :
+    for n in range(5,10) :
+        for i in range(4) :
+            for j in range(4) :
                 # Element 0 is max_iterations in the MCTS
                 # 1 is the weight for the first heuristic
                 # 2 is the weight for the second heuristic
