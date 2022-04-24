@@ -155,6 +155,10 @@ def main():
         if game.winner() is not None:
             run = False
             winner = game.winner()
+
+        for event in pygame.event.get():
+            pass
+
         game.update()
         # input("[next move]")
         pygame.time.wait(500)
