@@ -27,6 +27,7 @@ class Game:
 
     def update(self):
         self.board.draw(self.display)
+        self.board.test_heuristics()
         pygame.display.update()
 
 
