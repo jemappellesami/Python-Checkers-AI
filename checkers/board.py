@@ -109,12 +109,6 @@ class Board:
         """
         res = list(map(lambda x: x.king == is_king, self.get_all_pieces(color))).count(True)
 
-        # res = 0
-        #
-        # for p in self.get_all_pieces(color):
-        #     if not p.king:
-        #         res += 1
-
         return res
 
     def eval_edge(self, color, is_king):
@@ -139,16 +133,6 @@ class Board:
         """
         res = sum(list(map(lambda x: x.king == is_king
                                     and len(self.get_valid_moves(x)[1].keys()) > 0, self.get_all_pieces(color))))
-
-        # print(self.get_all_pieces(color))
-        # for p in self.get_all_pieces(color):
-        #     print(self.get_valid_moves(p), len(self.get_valid_moves(p)[1].keys()))
-
-        # print(sum(list(map(lambda x: len(self.get_valid_moves(x)[1].keys()), self.get_all_pieces(color)))))
-        # number of possible moves
-
-        # print(list(map(lambda x: len(self.get_valid_moves(x)[1].keys()) > 0, self.get_all_pieces(color))))
-        # print(sum(list(map(lambda x: len(self.get_valid_moves(x)[1].keys()) > 0, self.get_all_pieces(color)))))
 
         return res
 
