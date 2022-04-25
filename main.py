@@ -137,6 +137,8 @@ def main():
 
     winner = ''
     run = True
+    game.update()
+
     while run:
         clock.tick(FPS)
 
@@ -155,34 +157,23 @@ def main():
                 pos = pygame.mouse.get_pos()
                 row, col = get_row_col_from_mouse(pos)
 
-        if game.turn == WHITE:
-            # print("playing for white")
-            if human_turn:
-                game.select(row, col)
-            else:
-                run, most_recent_tree, best_move, execution_time = make_move(game, p, 0, run, most_recent_tree)
-                move_made = True
-            if not run:
-                winner = "RED"
-        elif game.turn == RED:
-            # print("playing for red")
-            if human_turn:
-                if mouse_button_down:
-                    result = game.select(row, col)
-                    if result:
-                        selected = True
-                    else:
-                        move_made = True
-                        most_recent_tree = None
-            else:
-                run, most_recent_tree, best_move, execution_time = make_move(game, p, 1, run, most_recent_tree)
-                move_made = True
-            if not run:
-                winner = "WHITE"
+        if human_turn:
+            if mouse_button_down:
+                result = game.select(row, col)
+                if result:
+                    selected = True
+                else:
+                    move_made = True
+                    most_recent_tree = None
+        else:
+            run, most_recent_tree, best_move, execution_time = make_move(game, p, n, run, most_recent_tree)
+            move_made = True
+        if not run:
+            winner = "RED" if n == 0 else "WHITE"
 
         if game.winner() is not None:
             run = False
-            winner = game.winner()
+            winner = "RED" if game.winner() == (255, 0, 0) else "WHITE"
 
         if move_made:
             game.update()

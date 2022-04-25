@@ -90,14 +90,13 @@ class Game:
         if piece != 0 and piece.color == self.turn:
             self.selected = piece
             self.valid_moves = self.board.get_valid_moves(piece)
-            print("set the valid moves", self.valid_moves)
+            # print("set the valid moves", self.valid_moves)
             return True
 
         return False
 
     def _move(self, row, col):
         piece = self.board.get_piece(row, col)  # La place à occuper ensuite.
-        # print(self.valid_moves)
         valid_moves = self.valid_moves[1]
         if self.selected and piece == 0 and (row, col) in valid_moves:
             self.board.move(self.selected, row,
@@ -120,7 +119,6 @@ class Game:
         return True
 
     def draw_valid_moves(self, moves):
-        # print(moves)
         moves = moves[1]
         for move in moves:
             row, col = move
