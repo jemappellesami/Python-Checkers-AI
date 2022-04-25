@@ -27,6 +27,11 @@ class Game:
 
     def update(self):
         self.board.draw(self.display)
+        pygame.display.update()
+
+
+    def human_update(self):
+        self.board.draw(self.display)
         self.draw_valid_moves(self.valid_moves)
         pygame.display.update()
 
@@ -85,13 +90,16 @@ class Game:
         if piece != 0 and piece.color == self.turn:
             self.selected = piece
             self.valid_moves = self.board.get_valid_moves(piece)
+            print("set the valid moves", self.valid_moves)
             return True
 
         return False
 
     def _move(self, row, col):
         piece = self.board.get_piece(row, col)  # La place à occuper ensuite.
-        if self.selected and piece == 0 and (row, col) in self.valid_moves:
+        # print(self.valid_moves)
+        valid_moves = self.valid_moves[1]
+        if self.selected and piece == 0 and (row, col) in valid_moves:
             self.board.move(self.selected, row,
                             col)  # A ce moment là, on bouge une pièce, il faut regarder si c'est un king ou pas.
             if self.selected.king:
@@ -101,16 +109,19 @@ class Game:
             else:
                 # print("Ce n'est pas une dame qui a joué")
                 self.king_moved = 0
-            skipped = self.valid_moves[(row, col)]
+            skipped = valid_moves[(row, col)]
             if skipped:
                 self.board.remove(skipped)
             self.change_turn()
+            self.selected = None
         else:
             return False
 
         return True
 
     def draw_valid_moves(self, moves):
+        # print(moves)
+        moves = moves[1]
         for move in moves:
             row, col = move
             pygame.draw.circle(self.display, BLUE,

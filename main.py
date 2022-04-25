@@ -60,16 +60,16 @@ def minimax_ai_move(game, tree):
     return tree, chosen_move
 
 
-def human_move(game):
-    """
-    Executes a move on the board determined by the player.
-    """
-    value, chosen_move = minimax(game.get_board(), 3, game)
-    chosen_move.compute_final_state()
-
-    game.ai_move(chosen_move.final_state)
-    return chosen_move
-    # FIXME: implement the correct function, currently is a copy of minimax_ai_move
+# def human_move(game):
+#     """
+#     Executes a move on the board determined by the player.
+#     """
+#     value, chosen_move = minimax(game.get_board(), 3, game)
+#     chosen_move.compute_final_state()
+#
+#     game.ai_move(chosen_move.final_state)
+#     return chosen_move
+#     # FIXME: implement the correct function, currently is a copy of minimax_ai_move
 
 
 def make_move(game, p, n, run, tree):
@@ -77,10 +77,7 @@ def make_move(game, p, n, run, tree):
     Executes a move on the board determined by the arguments chosen at game launch.
     """
     start_time = time.time()
-    if p[n] == "human":
-        best_move = human_move(game)
-    else:
-        run, tree, best_move = make_ai_move(game, n, p, run, tree)
+    run, tree, best_move = make_ai_move(game, n, p, run, tree)
     end_time = time.time()
     execution_time = end_time - start_time
 
@@ -93,7 +90,7 @@ def make_ai_move(game, n, p, run, tree):
         tree, best_move = minimax_ai_move(game, tree)
     elif p[n] == "mcts":
         run, tree, best_move = mcts_ai_move(game, run, tree)
-    else :
+    else:
         print("Error with AI option")
         best_move = None
         exit()
@@ -143,12 +140,43 @@ def main():
     while run:
         clock.tick(FPS)
 
+        row, col = 0, 0
+        human_turn = (game.turn == WHITE and p[0] == "human") or (game.turn == RED and p[1] == "human")
+        move_made = False
+        selected = False
+        mouse_button_down = False
+        n = 0 if game.turn == WHITE else 1
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_button_down = True
+                pos = pygame.mouse.get_pos()
+                row, col = get_row_col_from_mouse(pos)
+
         if game.turn == WHITE:
-            run, most_recent_tree, best_move, execution_time = make_move(game, p, 0, run, most_recent_tree)
+            # print("playing for white")
+            if human_turn:
+                game.select(row, col)
+            else:
+                run, most_recent_tree, best_move, execution_time = make_move(game, p, 0, run, most_recent_tree)
+                move_made = True
             if not run:
                 winner = "RED"
         elif game.turn == RED:
-            run, most_recent_tree, best_move, execution_time = make_move(game, p, 1, run, most_recent_tree)
+            # print("playing for red")
+            if human_turn:
+                if mouse_button_down:
+                    result = game.select(row, col)
+                    if result:
+                        selected = True
+                    else:
+                        move_made = True
+                        most_recent_tree = None
+            else:
+                run, most_recent_tree, best_move, execution_time = make_move(game, p, 1, run, most_recent_tree)
+                move_made = True
             if not run:
                 winner = "WHITE"
 
@@ -156,12 +184,12 @@ def main():
             run = False
             winner = game.winner()
 
-        for event in pygame.event.get():
-            pass
+        if move_made:
+            game.update()
+        if selected:
+            game.human_update()
 
-        game.update()
-        # input("[next move]")
-        pygame.time.wait(500)
+        # pygame.time.wait(500)
     print("And the winner is : ", winner)
     pygame.quit()
 
