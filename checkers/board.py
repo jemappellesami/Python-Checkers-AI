@@ -8,7 +8,6 @@ from .piece import Piece
 
 
 class Board:
-
     safe_heuri_weight = 1
 
     def __init__(self):
@@ -94,12 +93,51 @@ class Board:
         """
         self.red_left, self.white_left = self.get_num()
         if self.red_left <= 0:
-            #Il n'y a plus de rouge sur le board.
+            # Il n'y a plus de rouge sur le board.
             return WHITE
         elif self.white_left <= 0:
             # Il n'y a plus de blanc sur le board.
             return RED
         return None
+
+    def eval_number_pawns(self, color):
+        res = len(map(lambda x: not x.king, self.get_all_pieces(color)))
+
+        # res = 0
+        #
+        # for p in self.get_all_pieces(color):
+        #     if not p.king:
+        #         res += 1
+
+        return res
+
+    def eval_number_kings(self, color):
+        res = len(map(lambda x: x.king, self.get_all_pieces(color)))
+
+        # res = 0
+        #
+        # for p in self.get_all_pieces(color):
+        #     if p.king:
+        #         res += 1
+
+        return res
+
+    def eval_edge_pieces(self, color):
+        """
+        Evaluates the current board for the given color by accounting for that color's safe pieces
+        :param color: color on which we focus
+        :return: the value of the board for the given color
+        """
+        res = 0
+
+        for piece in self.get_all_pieces(color):
+            row_no = piece.row
+            col_no = piece.col
+
+            if row_no in [0, 7] or col_no in [0, 7]:
+                res += 2
+
+        return res
 
     def eval_piece_row_value(self, color):
         """
@@ -122,25 +160,8 @@ class Board:
             res += 5 + row_no if not piece.king else 5 + num_of_rows + 2
         return res
 
-    def eval_safe_pieces(self, color):
-        """
-        Evaluates the current board for the given color by accounting for that color's safe pieces
-        :param color: color on which we focus
-        :return: the value of the board for the given color
-        """
-        res = 0
-
-        for piece in self.get_all_pieces(color):
-            row_no = piece.row
-            col_no = piece.col
-
-            if row_no in [0, 7] or col_no in [0, 7]:
-                res += 2
-
-        return res
-
     def eval(self, color):
-        return self.eval_piece_row_value(color) + self.eval_safe_pieces(color) * self.safe_heuri_weight
+        return self.eval_piece_row_value(color) + self.eval_edge_pieces(color) * self.safe_heuri_weight
 
     def get_valid_moves(self, piece):
         moves = {}
