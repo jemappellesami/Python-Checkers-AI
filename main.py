@@ -110,7 +110,7 @@ def main():
     pygame.display.set_caption('Checkers')
 
     clock = pygame.time.Clock()
-    game = Game(WIN)
+    game = Game(WIN, logging=False)
 
     parser = argparse.ArgumentParser(description="Checkers game")
     parser.add_argument(

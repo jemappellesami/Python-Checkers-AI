@@ -1,4 +1,5 @@
 # Let's gooooo
+import time
 from typing import List
 
 from checkers.board import Board
@@ -22,7 +23,7 @@ class Villager:
         self.exploit_param = exploit
         self.reward = reward
 
-    def list_parameters(self) -> List :
+    def list_parameters(self) -> List:
         return [self.it, self.safe_heuri, self.exploit_param]
 
 
@@ -48,7 +49,9 @@ def make_move(game, p, run, tree):
     else:
         print("Error : game.turn is neither WHITE nor RED")
 
-    run, tree, best_move, execution_time = make_ai_move(game, n, p, run, tree)
+    start = time.time()
+    run, tree, best_move = make_ai_move(game, n, p, run, tree)
+    execution_time = time.time() - start
 
     return run, tree, best_move, execution_time
 
@@ -56,10 +59,11 @@ def make_move(game, p, run, tree):
 def play_game(p, param_list) -> float:
     """
     Play a game and return the reward of the game seen from the mcts view
+    :param param_list: List of the parameters of a game
     :param p: players setup
     :return: float reward value seen from mcts
     """
-    game = Game(param_list)
+    game = Game(param_list, logging=False)
     winner = 0
     most_recent_tree = None
     running = True
@@ -88,12 +92,6 @@ def play_game(p, param_list) -> float:
         return 0.5
 
 
-# TODO : supprimer cette méthode
-def set_parameters(iterations, safe_heuristic, exploitation):
-    Board.set_heuri_weights(safe_heuristic)
-    MCNode.set_exploit(exploitation)
-
-
 def main():
     p = ["minimax", "mcts"]
 
@@ -102,8 +100,6 @@ def main():
     j = 0
     while not optimal:
         for villager in population:
-            # TODO : supprimer la ligne
-            # set_parameters(villager.it, villager.safe_heuri, villager.exploit_param)
             reward = 0
             for i in range(NB_GAMES):
                 j += 1

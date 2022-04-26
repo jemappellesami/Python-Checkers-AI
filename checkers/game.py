@@ -9,12 +9,12 @@ import time
 
 
 class Game:
-    def __init__(self, win=None, parameters=(8, 2, 1)):
+    def __init__(self, win=None, parameters=(8, 2, 1), logging=False):
         max_it = parameters[0]
         safe_heuri_weight = parameters[1]
         exploit_param = parameters[2]
         self._parameters_init(max_it, safe_heuri_weight, exploit_param)
-        self._init()
+        self._init(logging)
         self.display = win
         self.king_moved = 0
 
@@ -45,7 +45,7 @@ class Game:
         )
         log_file.close()
 
-    def _init(self):
+    def _init(self, logging):
         self.selected = None
         self.board = Board()
         self.turn = WHITE
@@ -53,7 +53,8 @@ class Game:
         self.valid_moves = {}
 
         # Log file management
-        self._init_log()
+        if logging:
+            self._init_log()
 
     def _init_log(self):
         self.log_file_name = "heuristic_stats/Fournée2/m{}_h{}_{}.csv".format(self.max_it, Board.safe_heuri_weight, time.time())
