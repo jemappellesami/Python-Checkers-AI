@@ -1,0 +1,137 @@
+\documentclass[11pt,a4paper]{article}
+\input{preambule}
+\usepackage[english]{babel}
+
+\usepackage{etoolbox}
+
+\providetoggle{darkmode}
+\settoggle{darkmode}{true}
+
+
+\iftoggle{darkmode}{
+    \pagecolor{black}
+    \color{white}
+    }
+    
+\usepackage{array}
+
+
+
+% Scientia Vincere Tenebras
+\usepackage{graphicx}
+\usepackage{transparent}
+\usepackage{eso-pic}
+\newcommand\BackgroundPic{
+    \put(0,0){
+        \parbox[b][\paperheight]{\paperwidth}{
+            \vfill
+            \centering
+            {\transparent{0.1}\includegraphics[width=1.1\textwidth]{SVT.png}}
+            \vfill
+        }
+    }
+}
+
+
+\begin{document}
+\thispagestyle{empty}
+\pagenumbering{Roman}
+
+%page de titre
+\begin{center}
+\AddToShipoutPicture*{\BackgroundPic}
+\end{center}
+\begin{figure}[h!]
+    \begin{center}
+    \includegraphics[scale=0.6]{EPB.png}
+    \end{center}
+    \end{figure}
+
+\begin{center}
+\begin{LARGE}
+\textbf{Techniques of artificial intelligence}
+\end{LARGE}
+\end{center}
+\vspace{2mm}
+\begin{center}
+\begin{large}
+PROJ-H418
+\end{large}
+\end{center}
+
+
+\vspace{4mm}
+\begin{center}\bf\huge
+\rule{16cm}{2pt}\\
+\bigskip
+{Project report : \textit{Monte-Carlo} tree-search for Checkers} 
+\rule{16cm}{2pt}
+\end{center}
+
+\vfill
+
+\begin{minipage}[t]{0.4\textwidth}
+\begin{flushleft}
+    \large{Sami \textsc{Abdul Sater}} \\
+    \large{Alexandre \textsc{Flachs}} \\
+    \large{Diego \textsc{Rubas}} \\
+    \large{Jeanne \textsc{Szpirer}} \\
+\end{flushleft}
+
+\end{minipage}
+
+\vfill
+\begin{center}
+Academic year 2021-2022
+\end{center}
+
+\newpage
+\tableofcontents
+
+\pagenumbering{arabic}
+ 
+%%%%%%%%%%%%%%%%%
+
+\section{Introduction : \textit{Monte-Carlo} tree-search}
+Tree search is an intuitive way to solve a game with a limited number of possible moves. A \textit{Monte-Carlo} tree-search (MCTS) is a tree-search algorithm that exploits \textbf{randomness} and \textbf{evaluation of simulated games} to decide the next move. The tree is built according to a policy that we hereby define.\\
+
+Repeat $n_{\text{iter}}$ times : 
+\begin{enumerate}
+    \item \textbf{Selection} of the \textbf{best} node according to policy  
+    \begin{itemize}[label=\tiny$\blacksquare$]
+        \item \textbf{Expansion} of nodes if needed
+    \end{itemize}
+    \item \textbf{Simulation} of the rest of the game, starting from the selected node. This simulation ends with a \textbf{reward} that takes into account if the game has been won or not.
+    \item This reward is \textbf{backpropagated} to the selected node. 
+\end{enumerate}
+Once all the simulations have been done, the tree is considered to be computed (though not necessarily fully expanded) : we then select the \textbf{best child}\\
+
+\subsection{Parameters}
+Are variable :
+\begin{itemize}
+    \item The selection policy
+    \item The best-child selection policy
+    \item The number of iterations
+\end{itemize}
+
+\subsection{Optimization and constraints}
+There are no particular mathematical constraints to ensure for this project. However, constraints are to be imposed to make it sure it runs in a \textbf{realistic time}, e.g. 15 seconds by move. \\
+
+Under this time, the parameters of the search ($n_{\text{iter}}$, the policies, and more) must be tuned to \textbf{optimize the win rate}. \\
+
+This report presents the implementation of a MCTS on top of a Checkers game. Explaining first the rules, very briefly, we then explain the implementation itself before presenting results of our AI agains a \textbf{deterministic} AI (minimax).
+
+\subsection{Our contribution}
+We took the implementation of a Checkers game with a minimax AI on top of it from an Open Source repository. Implementing MCTS required a huge refactor, at the game level and thus also at the minimax level. After implementing MCTS and refactoring, a benchmark was run for different parameters, which lead to an optimization of the win rate over the parameters of the search. 
+\section{Rules of the Checkers game}
+\subsection{Beginning of the game}
+\subsection{Movements}
+\subsection{Endgame}
+  
+
+\section{Implementation of MCTS to Checkers}
+
+\section{Genetic Algorithm to tune parameters}
+
+\section{Results}
+\end{document}
