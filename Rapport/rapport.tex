@@ -98,7 +98,7 @@ Tree search is an intuitive way to solve a game with a limited number of possibl
 Repeat $n_{\text{iter}}$ times : 
 \begin{enumerate}
     \item \textbf{Selection} of the \textbf{best} node according to policy  
-    \begin{itemize}[label=\tiny$\blacksquare$]
+    \begin{itemize}[label=$\blacktriangleright$]
         \item \textbf{Expansion} of nodes if needed
     \end{itemize}
     \item \textbf{Simulation} of the rest of the game, starting from the selected node. This simulation ends with a \textbf{reward} that takes into account if the game has been won or not.
@@ -124,13 +124,47 @@ This report presents the implementation of a MCTS on top of a Checkers game. Exp
 \subsection{Our contribution}
 We took the implementation of a Checkers game with a minimax AI on top of it from an Open Source repository. Implementing MCTS required a huge refactor, at the game level and thus also at the minimax level. After implementing MCTS and refactoring, a benchmark was run for different parameters, which lead to an optimization of the win rate over the parameters of the search. 
 \section{Rules of the Checkers game}
+Let's briefly go through the rules of Checkers game. Particular terms will be used and highlighted, that will be important for the algorithm. \\
+
+The game opposes two adversary, here named \code{RED} and \code{WHITE}, and consists of a \term{board} and \term{pieces} on it, each belonging to one player. Each piece then has a color, and the board has pieces on it. Here are some additional information :
+\begin{itemize}[label=$\blacktriangleright$]
+    \item A board can call a function to get all the pieces of a certain color 
+    \item It is possible to move a piece of the board using a \code{move} function
+    \item A piece has a defined \term{position} $(x,y)$ where $x$ denotes the row and $y$ the column of the piece. A piece is hence defined by a color and its position : $P = (C, x, y)$
+\end{itemize}
+
 \subsection{Beginning of the game}
+Each player has 12 pieces, that begin at the same position for every game, and the starting position is the conventional position for Checkers game. From here, the \code{WHITE} begins (by convention) and can perform a move.
 \subsection{Movements}
+In this section, we define with words how a player can move a piece. We could define it in an algorithmic way, but this wouldn't be particularly relevant for the sake of this report. \\
+
+A player can only \term{move} a piece in diagonal, going forward, and can move only one row forward, unless an ennemy piece is on its way. In this case, if the piece can reach a place on the board and some enemy pieces are on its way, the enemy pieces are discarded and the initial piece can find its final destination. We say that the pieces has \term{skipped} $n$ pieces if $n$ enemy pieces were discarded. \\
+
+If a piece reaches the opposite side of the board, it becomes a \term{queen} and can from now on move backwards.
 \subsection{Endgame}
+A game ends when 
+\begin{itemize}
+    \item a player has no pieces left : the adversary wins ;
+    \item no piece was discarded in the last 20 moves : it ends as a draw.
+\end{itemize}
   
 
 \section{Implementation of MCTS to Checkers}
+To implement the tree search, we need to define a tree and the policies associated to the search. Each time the AI has to play, it calls the algorithm, beginning to build the tree (as described in the introduction). Once the tree is built, it selects the best move according to a policy that will be described further.
 
+\subsection{Nodes}
+A node in the tree corresponds to 
+\begin{itemize}
+    \item The parent node
+    \item A \term{state} of the game : a \code{board} element
+    \item The move that lead from previous node to this one (\textit{parent action}) : a \code{move} element  
+    \item \code{visits} : number of times that this node was visited during the search
+    \item \term{reward} : number of times that this node led to victory
+\end{itemize}
+When the AI is instanciated, the root node has no parent and no parent action, \code{visits} is set to 1 and \code{reward} is set to 0.
+\subsection{Selection policy}
+\subsection{Best child policy}
+\subsection{Summary : pseudo-code}
 \section{Genetic Algorithm to tune parameters}
 
 \section{Results}
