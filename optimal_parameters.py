@@ -11,7 +11,9 @@ from montecarlo.algorithm import MCNode
 
 FPS = 60
 random.seed(15)
-POP_SIZE = 3
+POP_SIZE = 4
+NB_PARENTS_TO_KEEP = 3
+NB_CHILDREN = 3
 NB_GAMES = 2
 
 
@@ -30,6 +32,7 @@ def init_population() -> List[Villager]:
         safe_heuri = random.uniform(0, 1)
         exploit = random.uniform(0, 1)
         population.append(Villager(it, safe_heuri, exploit))
+        print("Villageois ajouté")
     return population
 
 
@@ -37,6 +40,7 @@ def make_move(game, p, run, tree):
     """
     Executes a move on the board determined by the arguments chosen at game launch.
     """
+    #print("Ready to make a move")
     n = -1
     if game.turn == WHITE:
         n = 0
@@ -100,15 +104,52 @@ def main():
         for villager in population:
             set_parameters(villager.it, villager.safe_heuri, villager.exploit_param)
             reward = 0
+            print("Prêt à jouer")
             for i in range(NB_GAMES):
+                print("Jeu commencé")
                 j += 1
                 reward += play_game(p)
                 print(j, "'th game is over")
             villager.reward = reward
         population.sort(key=lambda x: x.reward, reverse=True)
+        best_parents = select(population)
+        children = crossOver(best_parents)
         # TODO: select x% of best villagers and fuse them
-        break
+        population = children
+        print("Les enfants ont été générés, on commence avec eux")
 
+def select(population) ->List[Villager]:
+    # On garde les nb_parents qui sont les meilleurs.
+    new_population = []
+    print(len(population))
+    if NB_PARENTS_TO_KEEP>=len(population):
+        print("You want to keep too much parents, please change the parameter 'NB_PARENTS_TO_KEEP'")
+        return population
+    for i in range(NB_PARENTS_TO_KEEP):
+        new_population[i] = population[i]
+    return new_population
+
+def crossOver(parents: List[Villager]) -> List[Villager]:
+    if NB_CHILDREN%2 == 1:
+        impair = True
+        nb_children = NB_CHILDREN+1
+    else:
+        impair = False
+        nb_children = NB_CHILDREN
+    children = []
+    for i in range(int(nb_children/2)):
+        # First pick two parents in the list
+        parent1 = random.choice(parents)
+        parent2 = random.choice(parents)
+        # Now we need to choose which parameter to keep from the first and the second parent.
+        # TODO : randomisé la partie qui choisit quel paramètre on garde chez quel parent
+        child1 = Villager(parent1.it, parent1.safe_heuri, parent2.exploit_param)
+        child2 = Villager(parent2.it, parent2.safe_heuri, parent2.exploit_param)
+        children.append(child1)
+        children.append(child2)
+    if impair:
+        del children[0]
+    return children
 
 if __name__ == '__main__':
     main()

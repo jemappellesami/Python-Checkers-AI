@@ -81,7 +81,7 @@ def make_move(game, p, n, run, tree):
 
 
 def make_ai_move(game, n, p, run, tree):
-    # print("Player {} ({} AI) is thinking".format(n + 1, p[n].upper()))
+    #print("Player {} ({} AI) is thinking".format(n + 1, p[n].upper()))
     if p[n] == "minimax":
         tree = minimax_ai_move(game, tree)
     elif p[n] == "mcts":
