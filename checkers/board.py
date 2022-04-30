@@ -263,7 +263,8 @@ class Board:
             # print("eval_attacking_pawns", self.eval_attacking_pawns(color))
 
     def eval(self, color):
-        return self.eval_piece_row_value(color) + self.eval_edge_pieces(color) * self.safe_heuri_weight
+        return self.eval_piece_row_value(color) \
+               + (self.eval_edge(color, True) + self.eval_edge(color, False)) * self.safe_heuri_weight
 
     def get_valid_moves(self, piece):
         moves = {}
