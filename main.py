@@ -28,7 +28,7 @@ def mcts_ai_move(game, run, tree):
     """
     Executes a move on the board determined by the MCTS AI.
     """
-    new_board, new_tree, best_move = montecarlots(game.board,game.turn, game, tree)
+    new_board, new_tree, best_move = montecarlots(game.board, game.turn, game, tree)
     if new_board is None or best_move is None:
         # print("end of game?")  # DEBUG
         run = False
@@ -50,7 +50,7 @@ def minimax_ai_move(game, tree):
     chosen_move.compute_final_state()
     new_board = chosen_move.final_state
     if tree:
-        tree = tree.get_child(new_board)
+        tree = tree.find_child(new_board)
     # If no moves left
     if new_board is None:
         # When no moves left, actually it is possible to loop, so we have to put a limit of turns or decide that the game is over

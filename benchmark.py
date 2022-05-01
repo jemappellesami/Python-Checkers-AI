@@ -34,7 +34,7 @@ def minimax_ai_move(game, tree):
     chosen_move.compute_final_state()
     new_board = chosen_move.final_state
     if tree:
-        tree = tree.get_child(new_board)
+        tree = tree.find_child(new_board)
     if new_board is None:
         new_board = game.board
     game.ai_move(new_board, chosen_move)
