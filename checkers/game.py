@@ -27,7 +27,7 @@ class Game:
 
     def update(self):
         self.board.draw(self.display)
-        self.board.test_heuristics()
+        # self.board.test_heuristics()  # todo : is this supposed to be here?
         pygame.display.update()
 
 

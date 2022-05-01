@@ -11,7 +11,7 @@ import argparse
 FPS = 60
 
 
-random.seed(15)
+# random.seed(15)
 
 
 def get_row_col_from_mouse(pos):

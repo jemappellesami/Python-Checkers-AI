@@ -98,10 +98,10 @@ class Board:
         elif self.white_left <= 0:
             # Il n'y a plus de blanc sur le board.
             return RED
-        elif not self.get_all_moves(RED):
-            return WHITE
-        elif not self.get_all_moves(WHITE):
-            return RED
+        # elif not self.get_all_moves(RED):
+        #     return WHITE
+        # elif not self.get_all_moves(WHITE):
+        #     return RED
         return None
 
     def eval_number(self, color, is_king):
