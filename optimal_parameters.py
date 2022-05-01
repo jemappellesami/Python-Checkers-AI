@@ -19,6 +19,7 @@ POP_SIZE = 5
 N_KEEP = 3  # Nb of pop members to keep between generations
 NB_GAMES = 2
 MAX_IT_ALLOWED = 10
+RATE_MUTATION = 0.2 #Chance to be mutated, must be between 0 and 1
 
 
 class Villager:
@@ -133,17 +134,48 @@ def combine_parents(parents, n_couples: int):
 
 
 def evolve_population(population: List):
-    # TODO: select x% of best villagers and fuse them and perform mutations
     new_population = merge_population(population)
-    mutate_population(new_population)
+    mutated_population = mutate_population(new_population)
 
-    return new_population
+    return mutated_population
 
 
-def mutate_population(new_population):
-    # TODO
-    pass
+def mutate_population(new_population: List[Villager]):
+    # Method that chooses first if we need to mutate one parameter for a Villager.
+    # Then chooses which one and modify it.
+    definitive_children = []
+    for child in new_population:
+        chance_to_mutate = random.uniform(0, 1)
+        if chance_to_mutate < RATE_MUTATION:
+            print("There is a mutation")
+            #Need to select the parameter to mutate
+            param_to_mutate = random.randint(0, 2)
+            parameters = child.list_parameters()
+            to_mutate = parameters[param_to_mutate]
 
+            # If the parameter is the number of iterations, we just add one
+            if param_to_mutate == 0:
+                print("The parameter is the number of iterations")
+                print(parameters[param_to_mutate])
+                if to_mutate == MAX_IT_ALLOWED:
+                    parameters[param_to_mutate] = to_mutate//2
+                else:
+                    parameters[param_to_mutate] += 1
+                print(parameters[param_to_mutate])
+            # The parameter to mutate is not the number of iterations.
+            else:
+                print("The parameter is not the number of iterations")
+                print(parameters[param_to_mutate])
+                binary_to_mutate = bin(int(str(to_mutate-int(to_mutate))[2:]))[2:]
+                # Need to choose which bit to switch
+                bit = random.randint(0,len(binary_to_mutate)-2)
+                binary_to_mutate = binary_to_mutate[:bit] + str(1-int(binary_to_mutate[bit])) + binary_to_mutate[bit+1:]
+                parameters[param_to_mutate] = float('0.'+str(int(binary_to_mutate, 2)))
+                print(parameters[param_to_mutate])
+            definitive_children.append(Villager.from_list(parameters))
+        else:
+            definitive_children.append(child)
+    return definitive_children
 
 def cross_over(couple) -> Villager:
     # TODO : define a merging method
