@@ -148,9 +148,9 @@ def mutate_population(new_population: List[Villager]):
         chance_to_mutate = random.uniform(0, 1)
         if chance_to_mutate < RATE_MUTATION:
             print("There is a mutation")
-            #Need to select the parameter to mutate
-            param_to_mutate = random.randint(0, 2)
+            # Need to select the parameter to mutate
             parameters = child.list_parameters()
+            param_to_mutate = random.randint(0, len(parameters) - 1)
             to_mutate = parameters[param_to_mutate]
 
             # If the parameter is the number of iterations, we just add one
@@ -168,7 +168,7 @@ def mutate_population(new_population: List[Villager]):
                 print(parameters[param_to_mutate])
                 binary_to_mutate = bin(int(str(to_mutate-int(to_mutate))[2:]))[2:]
                 # Need to choose which bit to switch
-                bit = random.randint(0,len(binary_to_mutate)-2)
+                bit = random.randint(0, len(binary_to_mutate)-2)
                 binary_to_mutate = binary_to_mutate[:bit] + str(1-int(binary_to_mutate[bit])) + binary_to_mutate[bit+1:]
                 parameters[param_to_mutate] = float('0.'+str(int(binary_to_mutate, 2)))
                 print(parameters[param_to_mutate])
@@ -176,6 +176,7 @@ def mutate_population(new_population: List[Villager]):
         else:
             definitive_children.append(child)
     return definitive_children
+
 
 def cross_over(couple) -> Villager:
     # TODO : define a merging method
