@@ -8,7 +8,6 @@ from .piece import Piece
 
 
 class Board:
-
     safe_heuri_weight = 1
 
     def __init__(self):
@@ -94,12 +93,138 @@ class Board:
         """
         self.red_left, self.white_left = self.get_num()
         if self.red_left <= 0:
-            #Il n'y a plus de rouge sur le board.
+            # Il n'y a plus de rouge sur le board.
             return WHITE
         elif self.white_left <= 0:
             # Il n'y a plus de blanc sur le board.
             return RED
         return None
+
+    def eval_number(self, color, is_king):
+        """
+        Evaluates the current board for the given color by accounting for that color's number of pieces
+        :param color: color on which we focus
+        :param is_king: true if the type of the piece is king
+        :return: the value of the board for the given color
+        """
+        res = list(map(lambda x: x.king == is_king, self.get_all_pieces(color))).count(True)
+
+        return res
+
+    def eval_edge(self, color, is_king):
+        """
+        Evaluates the current board for the given color by accounting for that color's edge pieces
+        :param color: color on which we focus
+        :param is_king: true if the type of the piece is king
+        :return: the value of the board for the given color
+        """
+        res = list(map(lambda x: x.king == is_king
+                                 and (x.row in [0, 7] or x.col in [0, 7]), self.get_all_pieces(color))).count(True)
+
+        return res
+
+    def eval_movable(self, color, is_king):
+        """
+        Evaluates the current board for the given color by accounting for that color's movable pawns
+        (=pawns able to perform a move)
+        :param color: color on which we focus
+        :param is_king: true if the type of the piece is king
+        :return: the value of the board for the given color
+        """
+        res = sum(list(map(lambda x: x.king == is_king
+                                    and len(self.get_valid_moves(x)[1].keys()) > 0, self.get_all_pieces(color))))
+
+        return res
+
+    def eval_promotion_distance(self, color):
+        """
+        Evaluates the current board for the given color by accounting for that color's pawns' aggregate distance to the
+        promotion line
+        :param color: color on which we focus
+        :return: the value of the board for the given color
+        """
+        res = 0
+
+        if color == WHITE:
+            res = sum(list(map(lambda x: 7 - x.row, [x for x in self.get_all_pieces(color) if not x.king])))
+        else:
+            res = sum(list(map(lambda x: x.row, [x for x in self.get_all_pieces(color) if not x.king])))
+
+        # FIXME: should we use average or sum?
+        # sum: gets lower as we promote pawns (but also gets lower as we *lose* pawns)
+        # average: can get higher if we promote pawns to kings
+
+        return res
+
+    def eval_promotion_fields(self, color):
+        """
+        Evaluates the current board for the given color by accounting for that color's unoccupied promotion fields
+        (= 4 fields at the end of a board opposite the color's initial position)
+        :param color: color on which we focus
+        :return: the value of the board for the given color
+        """
+        res = 0
+
+        if color == WHITE:
+            promotion_fields = [(7, 0), (7, 2), (7, 4), (7, 6)]
+        else:
+            promotion_fields = [(0, 1), (0, 3), (0, 5), (0, 7)]
+
+        for x, y in promotion_fields:
+            if self.get_piece(x, y) == 0:
+                res += 1
+
+        return res
+
+    def eval_defender_pieces(self, color):
+        """
+        Evaluates the current board for the given color by accounting for that color's defender pieces
+        (=pieces situated in two lowermost rows)
+        :param color: color on which we focus
+        :return: the value of the board for the given color
+        """
+
+        if color == WHITE:
+            defender_rows = list(range(2))
+        else:
+            defender_rows = list(range(6, 8))
+
+        res = sum(list(map(lambda x: x.row in defender_rows, self.get_all_pieces(color))))
+
+        return res
+
+    def eval_attacking_pawns(self, color):
+        """
+        Evaluates the current board for the given color by accounting for that color's attacking pawns
+        (=pawns positioned in the three topmost rows)
+        :param color: color on which we focus
+        :return: the value of the board for the given color
+        """
+
+        if color == WHITE:
+            attacking_rows = list(range(5, 8))
+        else:
+            attacking_rows = list(range(3))
+
+        res = sum(list(map(lambda x: x.row in attacking_rows, [x for x in self.get_all_pieces(color) if not x.king])))
+
+        return res
+
+    def eval_central(self, color, is_king):
+        """
+        Evaluates the current board for the given color by accounting for that color's central pieces
+        (=pawns positioned in the three topmost rows)
+        :param color: color on which we focus
+        :param is_king: true if the type of the piece is king
+        :return: the value of the board for the given color
+        """
+
+        central_rows = list(range(3, 5))
+
+        res = sum(list(map(lambda x: x.row in central_rows,
+                           [x for x in self.get_all_pieces(color) if x.king == is_king])))
+
+        return res
 
     def eval_piece_row_value(self, color):
         """
@@ -122,25 +247,24 @@ class Board:
             res += 5 + row_no if not piece.king else 5 + num_of_rows + 2
         return res
 
-    def eval_safe_pieces(self, color):
-        """
-        Evaluates the current board for the given color by accounting for that color's safe pieces
-        :param color: color on which we focus
-        :return: the value of the board for the given color
-        """
-        res = 0
-
-        for piece in self.get_all_pieces(color):
-            row_no = piece.row
-            col_no = piece.col
-
-            if row_no in [0, 7] or col_no in [0, 7]:
-                res += 2
-
-        return res
+    def test_heuristics(self):
+        for color in [RED, WHITE]:
+            color_string = "RED" if color == RED else "WHITE"
+            print(color_string)
+            for cond in [True, False]:
+                type_string = "kings" if cond else "pawns"
+                # print("eval_number_{}".format(type_string), self.eval_number(color, cond))
+                # print("eval_edge_{}".format(type_string), self.eval_edge(color, cond))
+                # print("eval_movable_{}".format(type_string), self.eval_movable(color, cond))
+                # print("eval_central_{}".format(type_string), self.eval_central(color, cond))
+            # print("eval_promotion_distance", self.eval_promotion_distance(color))
+            # print("eval_promotion_fields", self.eval_promotion_fields(color))
+            # print("eval_defender_pieces", self.eval_defender_pieces(color))
+            # print("eval_attacking_pawns", self.eval_attacking_pawns(color))
 
     def eval(self, color):
-        return self.eval_piece_row_value(color) + self.eval_safe_pieces(color) * self.safe_heuri_weight
+        return self.eval_piece_row_value(color) \
+               + (self.eval_edge(color, True) + self.eval_edge(color, False)) * self.safe_heuri_weight
 
     def get_valid_moves(self, piece):
         moves = {}
