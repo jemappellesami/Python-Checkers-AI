@@ -17,7 +17,7 @@ FPS = 60
 random.seed(15)
 POP_SIZE = 5
 N_KEEP = 3  # Nb of pop members to keep between generations
-NB_GAMES = 2
+NB_GAMES = 6
 MAX_IT_ALLOWED = 10
 RATE_MUTATION = 0.2 #Chance to be mutated, must be between 0 and 1
 
@@ -75,13 +75,14 @@ def make_move(game, p, run, tree):
     return run, tree, best_move, execution_time
 
 
-def play_game(p, param_list) -> float:
+def play_game(p, villager: Villager) -> float:
     """
     Play a game and return the reward of the game seen from the mcts view
     :param p: players setup
     :param param_list: Parameters of the game to play
     :return: float reward value seen from mcts
     """
+    param_list = villager.list_parameters()
     game = Game(param_list, logging=False)
     winner = 0
     most_recent_tree = None
@@ -100,14 +101,17 @@ def play_game(p, param_list) -> float:
             running = False
             winner = game.winner()
 
+    villager.nb_simu += 1
     # print("Partie de simulation terminée")
     if winner == "RED":
         # print("Rouge a gagné")
+        villager.reward += 1
         return 1
     elif winner == "WHITE":
         # print("Blanc a gagné")
         return 0
     else:
+        villager.reward += 0.5
         return 0.5
 
 
@@ -214,6 +218,17 @@ def merge_population(population: List):
     return new_population
 
 
+def evaluate_villager(p, villager):
+    threads = []
+    print("Evaluating villager with", villager.it, "iteration count")
+    for i in range(NB_GAMES):
+        t = threading.Thread(target=play_game, args=(p, villager))
+        threads.append(t)
+        t.start()
+    for t in threads:
+        t.join()
+
+
 def main():
     p = ["minimax", "mcts"]
 
@@ -240,13 +255,6 @@ def main():
             converged = True  # TODO : change
     population.sort(key=lambda x: x.reward/x.nb_simu if x.nb_simu != 0 else 0, reverse=True)
     print("Best candidate :", population[0])
-
-
-def evaluate_villager(p, villager):
-    for i in range(NB_GAMES):
-        print("Evaluating villager with", villager.it, "iteration count. Round", i)
-        villager.reward += play_game(p, villager.list_parameters())
-        villager.nb_simu += 1
 
 
 if __name__ == '__main__':
