@@ -32,7 +32,7 @@ class Villager:
 
     @classmethod
     def from_list(cls, params_list):
-        return cls(*params_list, reward=0)
+        return cls(*params_list, reward=0, nb_simu=0)
 
     def list_parameters(self) -> List:
         return [self.it, self.safe_heuri, self.exploit_param]
@@ -83,7 +83,7 @@ def play_game(p, villager: Villager) -> float:
     :return: float reward value seen from mcts
     """
     param_list = villager.list_parameters()
-    game = Game(param_list, logging=False)
+    game = Game(parameters=param_list, logging=False)
     winner = 0
     most_recent_tree = None
     running = True
@@ -254,7 +254,7 @@ def main():
         if k == 3:
             converged = True  # TODO : change
     population.sort(key=lambda x: x.reward/x.nb_simu if x.nb_simu != 0 else 0, reverse=True)
-    print("Best candidate :", population[0])
+    print("Best candidate :\n", population[0])
 
 
 if __name__ == '__main__':
