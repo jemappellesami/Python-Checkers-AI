@@ -50,7 +50,7 @@ def make_move(game, p, n, run, tree):
     if p[n] == "minimax":
         tree, best_move = minimax_ai_move(game, tree)
     elif p[n] == "mcts":
-        run, tree, best_move = mcts_ai_move(game, run, tree)
+        run, tree, best_move = mcts_ai_move(game, run, tree, game.parameters[0])
 
     end_time = time.time()
     execution_time = end_time - start_time
@@ -59,7 +59,7 @@ def make_move(game, p, n, run, tree):
 
 def main():
 
-    for n in range(5,10) :
+    for n in range(100,101) :
         for i in range(4) :
             for j in range(4) :
                 # Element 0 is max_iterations in the MCTS
@@ -71,7 +71,7 @@ def main():
 
 
                 run = True
-                game = Game(benchmark=True, parameters=parameters, logging=True)
+                game = Game(parameters=parameters, logging=True)
 
                 parser = argparse.ArgumentParser(description="Checkers game")
                 parser.add_argument(

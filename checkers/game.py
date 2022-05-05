@@ -37,12 +37,13 @@ class Game:
         pygame.display.update()
 
     def update_log(self, move, move_time, ai_type, count_red, count_white):
-        color = 0 if self.turn == WHITE else 1
-        log_file = open(self.log_file_name, "a")
-        log_file.write(
-            "{}; {}; {}; {}; {}; {}; {}; {}\n".format(int(self.num_turn), color, ai_type, move, len(move.skip), move_time, count_red, count_white)
-        )
-        log_file.close()
+        if move is not None :
+            color = 0 if self.turn == WHITE else 1
+            log_file = open(self.log_file_name, "a")
+            log_file.write(
+                "{}; {}; {}; {}; {}; {}; {}; {}\n".format(int(self.num_turn), color, ai_type, move, len(move.skip), move_time, count_red, count_white)
+            )
+            log_file.close()
 
     def update_log_winner(self, winner):
         log_file = open(self.log_file_name, "a")
@@ -63,7 +64,7 @@ class Game:
             self._init_log()
 
     def _init_log(self):
-        self.log_file_name = "heuristic_stats/Fournée2/m{}_h{}_{}.csv".format(self.max_it, Board.safe_heuri_weight, time.time())
+        self.log_file_name = "heuristic_stats/Fournée3/m{}_h{}_{}.csv".format(self.max_it, Board.safe_heuri_weight, time.time())
         log_file = open(self.log_file_name, "w")
         log_file.write("Turn; Color; AI; Move; Skip; Time; Num. Reds; Num. Whites \n")
         log_file.close()
@@ -145,14 +146,15 @@ class Game:
 
     def analyze_move(self, move: Move):
         # Need to check if this was a king move and if there was a capture.
-        piece_moved = move.get_piece()
-        if piece_moved.is_king():
-            # print("Dame jouée")  # DEBUG
-            self.king_moved += 1
-            # If no capture, we do nothing. If capture, count is back to zero.
-            if move.get_skip() is not None and len(move.get_skip()) != 0:
-                # print("Capture!")  # DEBUG
+        if move is not None :
+            piece_moved = move.get_piece()
+            if piece_moved.is_king():
+                # print("Dame jouée")  # DEBUG
+                self.king_moved += 1
+                # If no capture, we do nothing. If capture, count is back to zero.
+                if move.get_skip() is not None and len(move.get_skip()) != 0:
+                    # print("Capture!")  # DEBUG
+                    self.king_moved = 0
+            else:
+                # print("Pion joué")  # DEBUG
                 self.king_moved = 0
-        else:
-            # print("Pion joué")  # DEBUG
-            self.king_moved = 0
