@@ -224,6 +224,25 @@ Hence, the game can be simulated by choosing the best move, generating a new boa
             return
     \end{lstlisting}
 
+    
+    \begin{algorithm}
+    \caption{Selection of a node. Calls the \term{Best Child policy} and the \term{Expansion} procedure.}\label{listing:selection}
+    \begin{algorithmic}
+        \Procedure{select}{$N$}
+        \State $N$\Comment{MC Root Node}
+        \State CurrentNode = $N$ 
+        \While {CurrentNode is not leaf} 
+        \If 
+        {CurrentNode is not fully explored} 
+        \State \Return CurrentNode.\term{Expand}()
+        \Else 
+        \State CurrentNode = \term{BestChild}(CurrentNode)
+        \EndIf
+        \EndWhile
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
 \begin{algorithm}
     \caption{Expansion of a node}\label{listing:expand}
     \begin{algorithmic}
@@ -236,23 +255,5 @@ Hence, the game can be simulated by choosing the best move, generating a new boa
     \EndProcedure
     \end{algorithmic}
 \end{algorithm}
-
-\begin{algorithm}
-    \caption{Selection of a node. Calls the \term{Best Child policy} and the \term{Expansion} procedure.}\label{listing:selection}
-    \begin{algorithmic}
-    \Procedure{select}{$N$}
-    \State $N$\Comment{MC Root Node}
-    \State CurrentNode = $N$ 
-    \While {CurrentNode is not leaf} 
-        \If 
-            {CurrentNode is not fully explored} 
-            \State \Return CurrentNode.\term{Expand}()
-        \Else 
-            \State CurrentNode = \term{BestChild}(CurrentNode)
-            \EndIf
-    \EndWhile
-    \EndProcedure
-    \end{algorithmic}
-    \end{algorithm}
 \end{appendices}
 \end{document}

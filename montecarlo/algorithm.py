@@ -13,7 +13,7 @@ RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 
 
-def montecarlots(board, player, game, tree=None, max_it=8):
+def montecarlots(board, player, game, tree=None, max_it=100):
     """
     Proceeds a Monte Carlo tree search on the given board, considering that it's given player's turn.
     A possible precomputed search tree can be given to allow deeper computations
@@ -55,6 +55,8 @@ class MCNode:
         self.parent_action = previous_move
         self.children: List[MCNode] = []
         self.children_moves = []
+        self.remaining_moves = self.get_all_moves()
+        self.num_possible_moves = len(self.remaining_moves)
         self.max_it = max_it
         self.nb_king_moved = nb_king_moved
         return
@@ -95,34 +97,25 @@ class MCNode:
         for this node.
         :return: The newly created node
         """
-        # the function returns a list of possible moves (objects of the class Move)
-        possible_moves = self.get_all_moves()
+        move = random.choice(self.remaining_moves)
+        self.remaining_moves.remove(move)
+        piece = move.get_piece()
+        final_loc = move.get_loc()
+        skip = move.get_skip()
+        # Copy of the board, to avoid simulation from influencing the board
+        new_board = deepcopy(self.board)
+        # Need to make a deep copy of piece to avoid simulation from influencing the board
+        temp_piece = new_board.get_piece(piece.row, piece.col)
+        if temp_piece == 0:
+            print("Error, got a non existing piece from possible moves")
+            # print(piece, 'with move', move)
+            # print(temp_piece)
+            input("[enter]")
 
-        while len(possible_moves) > 0:
-            move = random.choice(possible_moves)
-            possible_moves.remove(move)
-            if self.not_in_children_moves(move):
-                # print("Node expanded with move ", move)
-                # When we found a movement that was not tried before, we capture the information to simulate it
-                # (origin piece, final destination, and if a piece was captured)
-                piece = move.get_piece()
-                final_loc = move.get_loc()
-                skip = move.get_skip()
-                # Copy of the board, to avoid simulation from influencing the board
-                new_board = deepcopy(self.board)
-                # Need to make a deep copy of piece to avoid simulation from influencing the board
-                temp_piece = new_board.get_piece(piece.row, piece.col)
-                if temp_piece == 0:
-                    print("Error, got a non existing piece from possible moves")
-                    # print(piece, 'with move', move)
-                    # print(temp_piece)
-                    input("[enter]")
+        new_state = new_board.simulate_move(temp_piece, final_loc, skip)
+        # See definition of the function.
+        self.add_child(new_state, move)
 
-                new_state = new_board.simulate_move(temp_piece, final_loc, skip)
-                # See definition of the function.
-                self.add_child(new_state, move)
-                break
-        # Returns the newly created child (node)
         return self.children[-1]
 
     def best_child(self):
@@ -151,7 +144,7 @@ class MCNode:
 
         :return: Boolean
         """
-        return len(self.get_all_moves()) == 0
+        return self.num_possible_moves == 0
 
     def fully_explored(self) -> bool:
         """
@@ -160,8 +153,7 @@ class MCNode:
 
         :return: True if node is fully explored, False otherwise
         """
-        possible_moves = self.get_all_moves()
-        return len(possible_moves) == len(self.children_moves)
+        return self.num_possible_moves == len(self.children_moves)
 
     def get_all_moves(self) -> List[Move]:
         """
@@ -243,8 +235,8 @@ class MCNode:
 
         while not len(possible_moves) == 0 and self.nb_king_moved < 20:
             # Use of the heuristic
-            best_moves = self.choose_best_moves(possible_moves)
-            rand_move = random.choice(best_moves)
+            # best_moves = self.choose_best_moves(possible_moves)
+            rand_move = random.choice(possible_moves)
 
             col, row = rand_move.get_loc()
             skip = rand_move.skip

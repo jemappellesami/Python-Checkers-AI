@@ -64,7 +64,7 @@ class Game:
             self._init_log()
 
     def _init_log(self):
-        self.log_file_name = "heuristic_stats/Fournée3/m{}_h{}_{}.csv".format(self.max_it, Board.safe_heuri_weight, time.time())
+        self.log_file_name = "heuristic_stats/NoHeuristicsAcc/m{}_h{}_{}_NOHEURISTICS.csv".format(self.max_it, MCNode.exploit_param, time.time())
         log_file = open(self.log_file_name, "w")
         log_file.write("Turn; Color; AI; Move; Skip; Time; Num. Reds; Num. Whites \n")
         log_file.close()
