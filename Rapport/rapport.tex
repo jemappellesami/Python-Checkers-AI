@@ -202,7 +202,30 @@ Hence, the game can be simulated by choosing the best move, generating a new boa
 \subsubsection{Heuristic 3}
 \subsubsection{Heuristic 666}
 \section{Genetic Algorithm to tune parameters}
-
+\subsection{Parameters to find}\label{params}
+The implemented genetic algorithm allows to calculate the value of some parameters in order to improve the main Monte-Carlo algorithm which plays checkers. These parameters are : 
+\begin{itemize}
+    \item the number of iterations
+    \item the safety factor (see Safe heuristic)
+    \item the exploitation factor.
+\end{itemize}
+Except for the number of iterations, the factors to be found can be between 0 and 1 and are there to determine the importance of the coded heuristics.
+\subsection{Algorithm}
+\subsubsection{First generation of parents}
+The algorithm starts with a random generation of "Villagers" (representing the population). \textit{POP\_SIZE} villagers are created and their parameters are randomly drawn.
+\subsubsection{Simulation of games}
+For each villager, a thread is created to make him play against Minimax \textit{NB\_GAMES} times. This saves a lot of time. Once all the games are finished, the parents can be ranked from best to worst. The quality of a parent is defined by the following fraction,
+\begin{center}
+    $\frac{reward}{nb\_simu}$
+\end{center}
+The \textit{reward} is the number of points recovered for all games played and \textit{nb\_simu} is the number of games.
+\subsubsection{Evolution of the population}
+Once the population has finished playing, merging can begin. \textit{NB\_KEEP} parents are kept from the current population (the best) to create the next one. Pairs are then formed and there will be as many pairs as there are individuals missing in order to have the same amount of population at every generation. Each couple formed creates a new child villager through the single point cross-over method.\\
+After merging, one or some children are eventually mutated. The rate of mutations is determined with the global parameter \textit{RATE\_MUTATION}. For every new villager, the algorithm picks a random real between 0 and 1, if the real is smaller than the rate, a mutation occurs on the villager. Then a parameter to determine (cf. \ref{params})
+is chosen randomly and a mutation is done. If it is the number of iterations, it's just increases until it reaches the maximum. If it is one of the factors, the parameter is transform into a binary number and one bit is switched.
+\subsubsection{Continuation and end}
+The loop starts again with the newly generated population. Each parent plays a certain number of games, receives a reward, and is allowed to play a game... The algorithm stops when the convergence criterion is checked. 
+ATTENTION ON DOIT CHANGER CE CRITERE D'AILLEURS
 \section{Results}
 
 \begin{appendices}
