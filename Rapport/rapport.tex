@@ -161,11 +161,28 @@ A node in the tree corresponds to
     \item \code{visits} : number of times that this node was visited during the search
     \item \term{reward} : number of times that this node led to victory
 \end{itemize}
-When the AI is instanciated, the root node has no parent and no parent action, \code{visits} is set to 1 and \code{reward} is set to 0.
+When the AI is instantiated, the root node has no parent and no parent action, \code{visits} is set to 1 and \code{reward} is set to 0.
 \subsection{Selection policy}
 \subsection{Best child policy}
 \subsection{Summary : pseudo-code}
 \section{Genetic Algorithm to tune parameters}
+
+\subsection{Heuristics}
+The following heuristics \footnote{MANDZIUK Jacek, KUSIAK Magdalena, WALEDZIK Karol- Evolutionary-based heuristic generators for checkers and give-away checkers} have been used:
+\begin{enumerate}
+    \item Number of pawns;
+    \item Number of kings;
+    \item Number of safe pawns (at the edge of the board);
+    \item Number of safe kings;
+    \item Number of movable pawns;
+    \item Number of movable kings;
+    \item Aggregated distance of movable pawns to the promotion line;
+    \item Number of unoccupied fields on the promotion line;
+    \item Number of defender pieces;
+    \item Number of attacking pawns;
+    \item Number of centrally-positioned pawns;
+    \item Number of centrally-positioned kings;
+\end{enumerate}
 
 \section{Results}
 \end{document}
