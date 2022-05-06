@@ -8,16 +8,13 @@ from .piece import Piece
 
 
 class Board:
-    safe_heuri_weight = 1
+    safe_heuri_weight = 0
 
     def __init__(self):
         self.board = []
         self.red_left = self.white_left = 12
         self.red_kings = self.white_kings = 0
         self.create_board()
-
-    def set_heuri_weights(heuri_weights):
-        Board.safe_heuri_weight = heuri_weights
 
     def draw_squares(self, win):
         win.fill(BLACK)

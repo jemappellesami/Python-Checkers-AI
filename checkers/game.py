@@ -9,18 +9,17 @@ import time
 
 
 class Game:
-    def __init__(self, win=None, parameters=(8, 2, 1), logging=False):
+    def __init__(self, win=None, parameters=(8, 1), logging=False):
         max_it = parameters[0]
-        safe_heuri_weight = parameters[1]
-        exploit_param = parameters[2]
-        self._parameters_init(max_it, safe_heuri_weight, exploit_param)
+        #safe_heuri_weight = parameters[1]
+        exploit_param = parameters[1]
+        self._parameters_init(max_it, exploit_param)
         self._init(logging)
         self.display = win
         self.king_moved = 0
 
-    def _parameters_init(self, max_it, safe_heuri_weight, exploit_param):
+    def _parameters_init(self, max_it, exploit_param):
         # first, default weights (to make sure the attribute is instanciated)
-        Board.set_heuri_weights(safe_heuri_weight)
         self.max_it = max_it
         MCNode.set_exploit(exploit_param)
 

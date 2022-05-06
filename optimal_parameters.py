@@ -1,17 +1,14 @@
 # Let's gooooo
 import threading
-from copy import deepcopy
-from math import factorial, comb
+from math import comb
 import time
 from typing import List
 
-from checkers.board import Board
 from checkers.constants import RED, WHITE
 import random
 
 from checkers.game import Game
 from main import make_ai_move
-from montecarlo.algorithm import MCNode
 
 FPS = 60
 random.seed(15)
@@ -19,13 +16,13 @@ POP_SIZE = 5
 N_KEEP = 3  # Nb of pop members to keep between generations
 NB_GAMES = 6
 MAX_IT_ALLOWED = 10
-RATE_MUTATION = 0.2 #Chance to be mutated, must be between 0 and 1
+RATE_MUTATION = 0.2  # Chance to be mutated, must be between 0 and 1
 
 
 class Villager:
-    def __init__(self, it, safe_heuri, exploit, reward=0, nb_simu=0):
-        self.it = it
-        self.safe_heuri = safe_heuri
+    def __init__(self, exploit, reward=0, nb_simu=0):
+        self.it = 100
+        #self.safe_heuri = safe_heuri
         self.exploit_param = exploit
         self.reward = reward
         self.nb_simu = nb_simu
@@ -35,23 +32,26 @@ class Villager:
         return cls(*params_list, reward=0, nb_simu=0)
 
     def list_parameters(self) -> List:
-        return [self.it, self.safe_heuri, self.exploit_param]
+        return [self.it, self.exploit_param]
+
+    def getparamter(self):
+        return self.exploit_param
+
+    def setparameter(self, param):
+        self.exploit_param=param
 
     def __repr__(self):
         return "it : " + str(self.it) + '\nsafe_heuri : ' \
-               + str(self.safe_heuri) + '\nexploit_param : ' \
                + str(self.exploit_param) + '\nreward : ' \
-               + str(self.reward) + '\nnb_simu : '\
+               + str(self.reward) + '\nnb_simu : ' \
                + str(self.nb_simu)
 
 
 def init_population() -> List[Villager]:
     population = []
     for i in range(POP_SIZE):
-        it = random.randint(5, MAX_IT_ALLOWED)
-        safe_heuri = random.uniform(0, 1)
         exploit = random.uniform(0, 1)
-        vil = Villager(it, safe_heuri, exploit)
+        vil = Villager(exploit)
         population.append(vil)
     return population
 
@@ -78,8 +78,8 @@ def make_move(game, p, run, tree):
 def play_game(p, villager: Villager) -> float:
     """
     Play a game and return the reward of the game seen from the mcts view
+    :param villager:
     :param p: players setup
-    :param param_list: Parameters of the game to play
     :return: float reward value seen from mcts
     """
     param_list = villager.list_parameters()
@@ -152,53 +152,49 @@ def mutate_population(new_population: List[Villager]):
         chance_to_mutate = random.uniform(0, 1)
         if chance_to_mutate < RATE_MUTATION:
             print("There is a mutation")
-            # Need to select the parameter to mutate
-            parameters = child.list_parameters()
-            param_to_mutate = random.randint(0, len(parameters) - 1)
-            to_mutate = parameters[param_to_mutate]
+            to_mutate = child.getparamter()
 
-            # If the parameter is the number of iterations, we just add one
-            if param_to_mutate == 0:
-                print("The parameter is the number of iterations")
-                print(parameters[param_to_mutate])
-                if to_mutate == MAX_IT_ALLOWED:
-                    parameters[param_to_mutate] = to_mutate//2
-                else:
-                    parameters[param_to_mutate] += 1
-                print(parameters[param_to_mutate])
-            # The parameter to mutate is not the number of iterations.
-            else:
-                print("The parameter is not the number of iterations")
-                print(parameters[param_to_mutate])
-                binary_to_mutate = bin(int(str(to_mutate-int(to_mutate))[2:]))[2:]
-                # Need to choose which bit to switch
-                bit = random.randint(0, len(binary_to_mutate)-2)
-                binary_to_mutate = binary_to_mutate[:bit] + str(1-int(binary_to_mutate[bit])) + binary_to_mutate[bit+1:]
-                parameters[param_to_mutate] = float('0.'+str(int(binary_to_mutate, 2)))
-                print(parameters[param_to_mutate])
-            definitive_children.append(Villager.from_list(parameters))
+            binary_to_mutate = bin(int(str(to_mutate - int(to_mutate))[2:]))[2:]
+            # Need to choose which bit to switch
+            bit = random.randint(0, len(binary_to_mutate) - 2)
+            binary_to_mutate = binary_to_mutate[:bit] + str(1 - int(binary_to_mutate[bit])) + binary_to_mutate[
+                                                                                                      bit + 1:]
+            param = float('0.' + str(int(binary_to_mutate, 2)))
+            child.setparameter(param)
+            definitive_children.append(child)
         else:
             definitive_children.append(child)
     return definitive_children
 
 
 def cross_over(couple) -> Villager:
-    # TODO : define a merging method
     # Single point crossover
-    i = random.randint(0, len(couple)-1)
+    """i = random.randint(0, len(couple) - 1)
     parent_1: List = couple.pop().list_parameters()
     parent_2: List = couple.pop().list_parameters()
     child_params = parent_1
     for j in range(i, len(parent_2)):
         child_params[j] = parent_2[j]
     child: Villager = Villager.from_list(child_params)
+    return child"""
+    parent_1 = couple.pop().getparamter()
+    parent_2 = couple.pop().getparamter()
+    binary_1 = bin(int(str(parent_1 - int(parent_1))[2:]))[2:]
+    print(binary_1)
+    binary_2 = bin(int(str(parent_2 - int(parent_2))[2:]))[2:]
+    print(binary_2)
+    bit = random.randint(0, min(len(binary_1) - 2, len(binary_2) - 2))
+    exploit_binary = binary_1[:bit] + binary_2[bit:]
+    print(exploit_binary)
+    param = float('0.' + str(int(exploit_binary, 2)))
+    child = Villager(param)
     return child
 
 
 def merge_population(population: List):
     global N_KEEP
 
-    population.sort(key=lambda x: x.reward/x.nb_simu if x.nb_simu != 0 else 0, reverse=True)
+    population.sort(key=lambda x: x.reward / x.nb_simu if x.nb_simu != 0 else 0, reverse=True)
     new_population = []
 
     # Keep best candidates
@@ -253,7 +249,7 @@ def main():
         k += 1
         if k == 3:
             converged = True  # TODO : change
-    population.sort(key=lambda x: x.reward/x.nb_simu if x.nb_simu != 0 else 0, reverse=True)
+    population.sort(key=lambda x: x.reward / x.nb_simu if x.nb_simu != 0 else 0, reverse=True)
     print("Best candidate :\n", population[0])
 
 
