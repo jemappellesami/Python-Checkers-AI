@@ -58,9 +58,9 @@ def make_move(game, p, n, run, tree):
 
 
 def main():
-    for n in range(0, 10) :
+    for n in range(0, 20) :
         run = True
-        max_it = 100 -n*10
+        max_it = 50 +n*10
         game = Game(parameters=[max_it, 0, 1], logging=True)
 
         p = ["mcts", "minimax"]
