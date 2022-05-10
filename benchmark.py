@@ -60,7 +60,7 @@ def make_move(game, p, n, run, tree):
 def main():
     for n in range(0, 10) :
         run = True
-        max_it = 250 -n*10
+        max_it = 100 -n*10
         game = Game(parameters=[max_it, 0, 1], logging=True)
 
         p = ["mcts", "minimax"]
@@ -80,6 +80,7 @@ def main():
                 run = False
 
         game.update_log_winner(game.winner())
+        print("End of game with maxit {}".format(max_it))
 
 
 main()

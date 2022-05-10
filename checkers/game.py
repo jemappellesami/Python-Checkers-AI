@@ -4,7 +4,7 @@ from montecarlo.algorithm import MCNode
 from .constants import RED, WHITE, BLUE, SQUARE_SIZE, ROWS, COLS
 from checkers.board import Board
 from .move import Move
-from SQLite.dbtest import create_connection, create_game_table, close_connection
+from SQLite.dbmanagement import create_connection, create_game_table, close_connection, insert_move
 import time
 
 
@@ -39,19 +39,53 @@ class Game:
 
     def update_log(self, move, move_time, ai_type, count_red, count_white):
         if move is not None :
-            color = 0 if self.turn == WHITE else 1
-            log_file = open(self.log_file_name, "a")
-            log_file.write(
-                "{}; {}; {}; {}; {}; {}; {}; {}\n".format(int(self.num_turn), color, ai_type, move, len(move.skip), move_time, count_red, count_white)
-            )
-            log_file.close()
+            color = "WHITE" if self.turn == WHITE else "RED"
+            conn = create_connection("SQLite/Games.db")
+            insert_move(table=self.table_name,
+                        turn=int(self.num_turn),
+                        color=color,
+                        ai_type=ai_type,
+                        origin_x=move.piece.row,
+                        origin_y=move.piece.col,
+                        final_x=move.loc[0],
+                        final_y=move.loc[1],
+                        skip=len(move.skip),
+                        time=move_time,
+                        count_red=count_red,
+                        count_white=count_white,
+                        conn=conn)
+            close_connection(conn)
+
+            # TODO : delete, normally its safe
+            # log_file = open(self.log_file_name, "a")
+            # log_file.write(
+            #     "{}; {}; {}; {}; {}; {}; {}; {}\n".format(int(self.num_turn), color, ai_type, move, len(move.skip), move_time, count_red, count_white)
+            # )
+            # log_file.close()
 
     def update_log_winner(self, winner):
-        log_file = open(self.log_file_name, "a")
-        log_file.write(
-            "Winner : {}\n".format("White" if winner == WHITE else "Red")
-        )
-        log_file.close()
+        conn = create_connection("SQLite/Games.db")
+        insert_move(table=self.table_name,
+                    turn=int(self.num_turn),
+                    color=winner,
+                    ai_type="END",
+                    origin_x=-1,
+                    origin_y=-1,
+                    final_x=-1,
+                    final_y=-1,
+                    skip=-1,
+                    time=-1,
+                    count_red=-1,
+                    count_white=-1,
+                    conn=conn)
+        close_connection(conn)
+
+        # TODO : delete, normally its safe
+        # log_file = open(self.log_file_name, "a")
+        # log_file.write(
+        #     "Winner : {}\n".format("White" if winner == WHITE else "Red")
+        # )
+        # log_file.close()
 
     def _init(self, logging):
         self.selected = None
@@ -66,14 +100,16 @@ class Game:
 
     def _init_log(self):
         self.table_name = "m{}_h{}_t{}".format(self.max_it, MCNode.exploit_param, int(time.time()))
+        # self.table_name = "test"
         conn = create_connection("SQLite/Games.db")
         create_game_table(self.table_name, conn)
         close_connection(conn)
 
-        self.log_file_name = "heuristic_stats/NoHeuristicsAcc/m{}_h{}_{}_NOHEURISTICS.csv".format(self.max_it, MCNode.exploit_param, time.time())
-        log_file = open(self.log_file_name, "w")
-        log_file.write("Turn; Color; AI; Move; Skip; Time; Num. Reds; Num. Whites \n")
-        log_file.close()
+        # TODO : delete, normally its safe
+        #self.log_file_name = "heuristic_stats/NoHeuristicsAcc/m{}_h{}_{}_NOHEURISTICS.csv".format(self.max_it, MCNode.exploit_param, time.time())
+        #log_file = open(self.log_file_name, "w")
+        #log_file.write("Turn; Color; AI; Move; Skip; Time; Num. Reds; Num. Whites \n")
+        #log_file.close()
 
     def winner(self):
         if self.king_moved >= 20:

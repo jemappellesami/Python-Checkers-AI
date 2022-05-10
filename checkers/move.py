@@ -5,7 +5,7 @@ from checkers.piece import Piece
 
 
 class Move:
-    def __init__(self, origin_state, color, origin_piece, destination_loc, skip):
+    def __init__(self, origin_state, color, origin_piece:Piece, destination_loc, skip):
         self.origin_state = origin_state
         self.color = color
         self.piece = origin_piece

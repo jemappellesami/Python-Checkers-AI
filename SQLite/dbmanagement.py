@@ -7,7 +7,6 @@ def create_connection(db_file):
     conn = None
     try:
         conn = sqlite3.connect(db_file)
-        print(sqlite3.version)
     except Error as e:
         print(e)
     finally:
@@ -17,7 +16,7 @@ def create_connection(db_file):
 def close_connection(connexion):
     connexion.close()
 
-def create_game_table(game, connexion) :
+def create_game_table(game, conn) :
     """
     Receives a connexion (already created) and a game name, creates a table and commits connexion. Careful : does not
     close connexion. If you desire to close connexion, you should do it outside the function.
@@ -25,10 +24,13 @@ def create_game_table(game, connexion) :
     :param connexion: Connexion instance to the DB
     :return:
     """
+    drop_query = """
+        DROP TABLE IF EXISTS {};
+    """.format(game)
     table_query = """
         CREATE TABLE {}(
             turn INT,
-            color BOOLEAN,
+            color VARCHAR(10),
             AI_type VARCHAR(10),
             origin_x INT,
             origin_y INT,
@@ -40,10 +42,29 @@ def create_game_table(game, connexion) :
             numWhites INT
         )
     """.format(game)
-    cur = connexion.cursor()
+    cur = conn.cursor()
+    cur.execute(drop_query)
     cur.execute(table_query)
-    connexion.commit()
+    conn.commit()
 
+def insert_move(table,turn, color, ai_type, origin_x, origin_y, final_x, final_y, skip, time, count_red, count_white, conn) :
+    cur = conn.cursor()
+    insert_query = """
+        INSERT INTO {}(turn, color, AI_type, origin_x, origin_y, final_x, final_y, skip, time, numReds, numWhites)
+        VALUES({},
+            '{}',
+            '{}',
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {})
+    """.format(table,turn, color, ai_type, origin_x, origin_y, final_x, final_y, skip, time, count_red, count_white)
+    cur.execute(insert_query)
+    conn.commit()
 
 
 delete_query = """
@@ -51,25 +72,13 @@ delete_query = """
 """
 
 
-insert_query = """
-    INSERT INTO game1(turn, color, AI_type, origin_x, origin_y, final_x, final_y, skip, time, numReds, numWhites)
-    VALUES(1,
-        1,
-        'mcts',
-        2,
-        1,
-        3,
-        2,
-        0,
-        4.158572196960449,
-        12,
-        12)
-"""
+
 if __name__ == '__main__':
     conn = create_connection("Games.db")
     cur = conn.cursor()
     cur.execute(delete_query)
-    cur.execute(table_query)
-    cur.execute(insert_query)
-    conn.commit()
+    create_game_table("game1", conn)
+    insert_move("game1",1, 1, "mcts",2,1,3, 2,0, 666, 12, 12, conn)
+    #cur.execute(insert_query)
+    #conn.commit()
     conn.close()
