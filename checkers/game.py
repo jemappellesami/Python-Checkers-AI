@@ -1,9 +1,10 @@
 import pygame
-
+import sqlite3 # for logging
 from montecarlo.algorithm import MCNode
 from .constants import RED, WHITE, BLUE, SQUARE_SIZE, ROWS, COLS
 from checkers.board import Board
 from .move import Move
+from SQLite.dbtest import create_connection, create_game_table, close_connection
 import time
 
 
@@ -64,6 +65,11 @@ class Game:
             self._init_log()
 
     def _init_log(self):
+        self.table_name = "m{}_h{}_t{}".format(self.max_it, MCNode.exploit_param, int(time.time()))
+        conn = create_connection("SQLite/Games.db")
+        create_game_table(self.table_name, conn)
+        close_connection(conn)
+
         self.log_file_name = "heuristic_stats/NoHeuristicsAcc/m{}_h{}_{}_NOHEURISTICS.csv".format(self.max_it, MCNode.exploit_param, time.time())
         log_file = open(self.log_file_name, "w")
         log_file.write("Turn; Color; AI; Move; Skip; Time; Num. Reds; Num. Whites \n")

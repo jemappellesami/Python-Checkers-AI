@@ -8,6 +8,7 @@ authors = ["Sami <samiabdulsater@gmail.com>"]
 python = "^3.10"
 pygame = "^2.1.2"
 pandas = "^1.4.2"
+sqlite3-api = "^2.0.4"
 
 [tool.poetry.dev-dependencies]
 
