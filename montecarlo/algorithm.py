@@ -36,7 +36,7 @@ def montecarlots(board, player, game, tree=None, max_it=100):
 
 
 class MCNode:
-    exploit_param = 1
+    exploit_param = 0.25
 
     def __init__(self, board: Board, color, nb_king_moved, max_it, parent=None, previous_move: Move = None):
         """
@@ -228,16 +228,17 @@ class MCNode:
         :param last_expanded_node: Initial MCNode for the simulation.
         :return: Reward value (0 or 1)
         """
-
-        simulation_child = deepcopy(last_expanded_node)
+        simulation_child = MCNode(board=deepcopy(last_expanded_node.board),
+                                  color=last_expanded_node.color,
+                                  nb_king_moved=last_expanded_node.nb_king_moved,
+                                  max_it=last_expanded_node.max_it)
         simulation_board: Board = simulation_child.board  # To avoid working on existing new_state
-        possible_moves = simulation_child.get_all_moves()
+        possible_moves = simulation_child.remaining_moves
 
         while not len(possible_moves) == 0 and self.nb_king_moved < 20:
             # Use of the heuristic
             # best_moves = self.choose_best_moves(possible_moves)
             rand_move = random.choice(possible_moves)
-
             col, row = rand_move.get_loc()
             skip = rand_move.skip
             simulation_board = simulation_board.simulate_move(rand_move.piece, (col, row), skip)
@@ -249,7 +250,8 @@ class MCNode:
                                       nb_king_moved=self.nb_king_moved,
                                       previous_move=rand_move,
                                       max_it=self.max_it)
-            possible_moves = simulation_child.get_all_moves()
+            possible_moves = simulation_child.remaining_moves
+
 
         return self.winner(simulation_child)
 

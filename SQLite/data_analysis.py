@@ -45,7 +45,7 @@ def analyze_moves(game_df, description, ai_type='mcts') :
 # TODO : plot num_turns by game, function of max_it
 if __name__ == '__main__':
     cur = conn.cursor()
-    cur.execute("ATTACH \"Games.db\" AS my_db")
+    cur.execute("ATTACH \"Games_v3.db\" AS my_db")
     cur.execute("SELECT name FROM my_db.sqlite_master WHERE type='table';")
     res = cur.fetchall()
     tables = [table[0] for table in res]

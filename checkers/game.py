@@ -40,7 +40,7 @@ class Game:
     def update_log(self, move, move_time, ai_type, count_red, count_white):
         if move is not None :
             color = "WHITE" if self.turn == WHITE else "RED"
-            conn = create_connection("SQLite/Games.db")
+            conn = create_connection("SQLite/Games_v6.db")
             insert_move(table=self.table_name,
                         turn=int(self.num_turn),
                         color=color,
@@ -64,7 +64,7 @@ class Game:
             # log_file.close()
 
     def update_log_winner(self, winner):
-        conn = create_connection("SQLite/Games.db")
+        conn = create_connection("SQLite/Games_v6.db")
         insert_move(table=self.table_name,
                     turn=int(self.num_turn),
                     color=winner,
@@ -101,7 +101,7 @@ class Game:
     def _init_log(self):
         self.table_name = "m{}_h{}_t{}".format(self.max_it, MCNode.exploit_param, int(time.time()))
         # self.table_name = "test"
-        conn = create_connection("SQLite/Games.db")
+        conn = create_connection("SQLite/Games_v6.db")
         create_game_table(self.table_name, conn)
         close_connection(conn)
 

@@ -74,7 +74,7 @@ delete_query = """
 
 
 if __name__ == '__main__':
-    conn = create_connection("Games.db")
+    conn = create_connection("Games_v2.db")
     cur = conn.cursor()
     cur.execute(delete_query)
     create_game_table("game1", conn)

@@ -58,9 +58,10 @@ def make_move(game, p, n, run, tree):
 
 
 def main():
-    for n in range(0, 20) :
+    # TODO : perform benchmark with other n
+    for n in range(0, 5) :
         run = True
-        max_it = 50 +n*10
+        max_it = 20000
         game = Game(parameters=[max_it, 0, 1], logging=True)
 
         p = ["mcts", "minimax"]
