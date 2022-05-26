@@ -42,7 +42,16 @@ def analyze_moves(game_df, description, ai_type='mcts') :
     return mean, std, min_time, min_turn, max_time, max_turn
 
 
-# TODO : plot time, function of turn
+def nb_turns_in_time_t(tables):
+    df_full = pd.DataFrame(columns=['game_id', 'turn', 'time', 'AI_type'])
+    for idx, table in enumerate(tables):
+        df = pd.read_sql_query(f'select turn, time, AI_type from {table} where AI_type <> "END";', conn)
+        df['game_id'] = idx
+        df_full = pd.concat([df_full, df], ignore_index=True)
+    fig = px.histogram(df_full, x="time", color="AI_type", nbins=20)
+    fig.show()
+
+
 # TODO : plot num_turns by game, function of max_it
 def analyze_avg_time(tables):
     df_full = pd.DataFrame(columns=['game_id', 'turn', 'time', 'AI_type'])
@@ -67,8 +76,9 @@ if __name__ == '__main__':
     res = cur.fetchall()
     tables = [table[0] for table in res]
     analyze_avg_time(tables)
-    for table in tables:
-        df = pd.read_sql_query("select * from {} ;".format(table), conn)
+    nb_turns_in_time_t(tables)
+    #for table in tables:
+        #df = pd.read_sql_query("select * from {} ;".format(table), conn)
         #analyze_moves(df, table)
 
     #print(summary_df)
