@@ -1,0 +1,211 @@
+%% Packages élémentaires %%
+\usepackage[utf8]{inputenc}
+\usepackage{mathpazo,etoolbox, graphicx, wrapfig, pbox, fancybox, hyperref, appendix, geometry, amsmath, amssymb, tikz, pgfplots, calc, enumitem, colortbl, subfiles}
+\usepackage{forest} % Pour une arborescence de fichiers
+%% supression des alineas
+\setlength{\parindent}{0pt}
+
+%% Ajustement des marges
+\geometry{hmargin=2.4cm, vmargin = 2.1cm}
+
+%% Changement des "---" en "--" dans itemize
+\setlist[itemize]{itemsep=10pt, label={--}}
+
+%% Couleurs %%
+\usepackage{xcolor}
+\definecolor{bleu}{RGB}{14, 68, 175}
+\definecolor{BGbleu}{RGB}{222, 233, 255 }
+\definecolor{BGorange}{RGB}{255, 216, 154}
+\definecolor{rouge}{RGB}{201, 0, 0}
+\definecolor{vert}{RGB}{14, 137, 0}
+\definecolor{BGgris}{RGB}{222,230,230}
+
+% Couleurs additionnelles jolies
+\definecolor{vertPale}{RGB}{227, 255, 233}
+\definecolor{bleuPale}{RGB}{232, 238, 255}
+\definecolor{jaunePale}{RGB}{253, 255, 189}
+\definecolor{orangePale}{RGB}{255, 223, 189}
+\definecolor{rougePale}{RGB}{255, 217, 217}
+\definecolor{mauvePale}{RGB}{249, 222, 255}
+
+\newcommand\rouge[1] {{\color{rouge}{#1}}}
+\newcommand\bleu[1] {{\color{bleu}{#1}}}
+\newcommand\term[1] {\textbf{{\color{bleu}{#1}}}}
+\newcommand\green[1]{{\color{vert}{#1}}}
+\newcommand\folder[1]{\green{{#1}}}
+\newcommand\subfolder[1]{\bleu{{#1}}}
+
+%% Checkbox : https://tex.stackexchange.com/questions/16000/creating-boxed-check-mark
+\newcommand{\checked}{$\mbox{\ooalign{$\checkmark$\cr\hidewidth$\square$\hidewidth\cr}}$}
+\newcommand{\unchecked}{$\square$}
+%% Cadres %%
+
+\newcommand{\custombox}[4]{
+    \fcolorbox{#4}{#1}{\parbox{#2\linewidth}{ 
+    #3
+    }}
+}
+
+\newcommand{\presentationBox}[3]{
+    \custombox{#2}{0.45}{
+        \begin{center}
+            #1
+        \end{center}
+        \begin{small}
+            \textit{#3}
+        \end{small}
+    }{white}    
+}
+\setlength{\fboxsep}{1em} % espace entre le bord d'une boite et le texte dedans
+
+\newcommand\bbm[1]{
+\begin{center}
+    \fcolorbox{black}{BGbleu}{\parbox{\linewidth}{ 
+    #1
+    }}
+\end{center}
+}
+
+
+\newcommand\bo[1]{
+\begin{center}
+\fcolorbox{black}{BGorange}{\parbox{\textwidth}{ 
+#1
+}}
+\end{center}}
+
+\newcommand\bb[1]{
+\begin{center}
+\fcolorbox{black}{BGbleu}{\parbox{\textwidth}{ 
+\begin{Large}
+\begin{center}
+#1
+\end{center}
+\end{Large}
+}}
+\end{center}}
+
+
+\newcommand\boite[1]{
+\begin{center}
+\fbox{\parbox{\textwidth}{ \begin{center}
+\begin{Large}
+#1
+\end{Large}
+\end{center}}}
+\end{center}}
+
+\newcommand\aparte[1]{
+\begin{center}
+\fcolorbox{white}{BGgris}{\parbox{\linewidth}{ \textit{A parte} \\
+#1 }}
+\end{center}}
+\newcommand\bg[2]{
+\begin{center}
+\fcolorbox{white}{BGgris}{\parbox{\linewidth}{ \textit{#1} \\
+#2 }}
+\end{center}}
+
+\newcommand\exemple[1]{
+\begin{center}
+\fcolorbox{white}{BGgris}{\parbox{\linewidth}{ \textit{Exemple} \\
+#1 }}
+\end{center}}
+
+%% Commandes %%
+\newcommand\imp[1]{\underline{\textbf{#1}}}
+\newcommand\eq[1]{\begin{large}
+\begin{align*}
+#1
+\end{align*}
+\end{large}}
+%% Commandes fantaisistes (cf. Internet) %%
+\renewcommand{\parallel}{ \mathbin{\!/\mkern-5mu/\!} }
+\newcommand{\q}[1]{{%
+\font\larm = larm1000%
+\larm%
+\char 190}{ \textit{#1} }{%
+\font\larm = larm1000%
+\larm%
+\char 191}}
+
+%% Wrapping %%
+\newcommand\wrap[4]{\begin{wrapfigure}[#1]{#2}{#3\textwidth}
+#4
+\end{wrapfigure}}
+
+
+
+%% Code %%
+\usepackage{listings}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{RGB}{242,242,242}
+\definecolor{codeorange}{RGB}{255,140,0}
+
+\newcommand{\code}[1]{\texttt{{\color{codepurple}{#1}}}}
+\newcommand{\codep}[1]{\texttt{{\color{codegreen}{#1}}}}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{bleu},
+    keywordstyle=\color{codeorange},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+\lstset{language=C}
+
+\lstdefinestyle{cppstyle}{
+basicstyle=\footnotesize\sffamily\color{black},
+commentstyle=\color{mygray},
+frame=single,
+numbers=left,
+numbersep=5pt,
+numberstyle=\tiny\color{mygray},
+keywordstyle=\color{mygreen},
+showspaces=false,
+showstringspaces=false,
+stringstyle=\color{myorange},
+tabsize=2
+}
+
+
+%% Leftbar (merci M. Albrecht-Marc)
+\usepackage{framed}
+
+\renewenvironment{leftbar}[1][\hsize]
+{%
+     \def\FrameCommand
+     {%
+         {\color{black}\vrule width 3pt}%
+         \hspace{7pt}%must no space.
+        % \fboxsep=\FrameSep\colorbox{yellow}%
+     }%
+     \MakeFramed{\hsize#1\advance\hsize-\width\FrameRestore}%
+}
+{\endMakeFramed}
+\newenvironment{blueleftbar}[1][\hsize]
+{%
+     \def\FrameCommand
+     {%
+         {\color{blue}\vrule width 3pt}%
+         \hspace{7pt}%must no space.
+        % \fboxsep=\FrameSep\colorbox{yellow}%
+     }%
+     \MakeFramed{\hsize#1\advance\hsize-\width\FrameRestore}%
+}
+{\endMakeFramed}

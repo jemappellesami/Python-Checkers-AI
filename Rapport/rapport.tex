@@ -1,0 +1,282 @@
+\documentclass[11pt,a4paper]{article}
+\input{preambule}
+\usepackage[english]{babel}
+
+\usepackage{etoolbox}
+
+\providetoggle{darkmode}
+\settoggle{darkmode}{false}
+
+
+\iftoggle{darkmode}{
+    \pagecolor{black}
+    \color{white}
+    }
+
+\usepackage{array, algorithm, algpseudocode}
+
+
+
+% Scientia Vincere Tenebras
+\usepackage{graphicx}
+\usepackage{transparent}
+\usepackage{eso-pic}
+\newcommand\BackgroundPic{
+    \put(0,0){
+        \parbox[b][\paperheight]{\paperwidth}{
+            \vfill
+            \centering
+            {\transparent{0.1}\includegraphics[width=1.1\textwidth]{SVT.png}}
+            \vfill
+        }
+    }
+}
+
+
+\begin{document}
+\thispagestyle{empty}
+\pagenumbering{Roman}
+
+%page de titre
+\begin{center}
+\AddToShipoutPicture*{\BackgroundPic}
+\end{center}
+\begin{figure}[h!]
+    \begin{center}
+    \includegraphics[scale=0.6]{EPB.png}
+    \end{center}
+    \end{figure}
+
+\begin{center}
+\begin{LARGE}
+\textbf{Techniques of artificial intelligence}
+\end{LARGE}
+\end{center}
+\vspace{2mm}
+\begin{center}
+\begin{large}
+PROJ-H418
+\end{large}
+\end{center}
+
+
+\vspace{4mm}
+\begin{center}\bf\huge
+\rule{16cm}{2pt}\\
+\bigskip
+{Project report : \textit{Monte-Carlo} tree-search for Checkers}
+\rule{16cm}{2pt}
+\end{center}
+
+\vfill
+
+\begin{minipage}[t]{0.4\textwidth}
+\begin{flushleft}
+    \large{Sami \textsc{Abdul Sater}} \\
+    \large{Alexandre \textsc{Flachs}} \\
+    \large{Diego \textsc{Rubas}} \\
+    \large{Jeanne \textsc{Szpirer}} \\
+\end{flushleft}
+
+\end{minipage}
+
+\vfill
+\begin{center}
+Academic year 2021-2022
+\end{center}
+
+\newpage
+\tableofcontents
+
+\pagenumbering{arabic}
+
+%%%%%%%%%%%%%%%%%
+
+\section{Introduction : \textit{Monte-Carlo} tree-search}
+Tree search is an intuitive way to solve a game with a limited number of possible moves. A \textit{Monte-Carlo} tree-search (MCTS) is a tree-search algorithm that exploits \textbf{randomness} and \textbf{evaluation of simulated games} to decide the next move. The tree is built according to a policy that we hereby define.\\
+
+Repeat $n_{\text{iter}}$ times :
+\begin{enumerate}
+    \item \textbf{Selection} of the \textbf{best} node according to policy
+    \begin{itemize}[label=$\blacktriangleright$]
+        \item \textbf{Expansion} of nodes if needed
+    \end{itemize}
+    \item \textbf{Simulation} of the rest of the game, starting from the selected node. This simulation ends with a \textbf{reward} that takes into account if the game has been won or not.
+    \item This reward is \textbf{backpropagated} to the selected node.
+\end{enumerate}
+Once all the simulations have been done, the tree is considered to be computed (though not necessarily fully expanded) : we then select the \textbf{best child}.\\
+
+\subsection{Parameters}
+Are variable :
+\begin{itemize}
+    \item The selection policy
+    \item The best-child selection policy
+    \item The number of iterations
+\end{itemize}
+
+\subsection{Optimization and constraints}
+There are no particular mathematical constraints to ensure for this project. However, constraints are to be imposed to make it sure it runs in a \textbf{realistic time}, e.g. 15 seconds by move. \\
+
+Under this time, the parameters of the search ($n_{\text{iter}}$, the policies, and more) must be tuned to \textbf{optimize the win rate}. \\
+
+This report presents the implementation of a MCTS on top of a Checkers game. Explaining first the rules, very briefly, we then explain the implementation itself before presenting results of our AI agains a \textbf{deterministic} AI (minimax).
+
+\subsection{Our contribution}
+We took the implementation of a Checkers game with a minimax AI on top of it from an Open Source repository. Implementing MCTS required a huge refactor, at the game level and thus also at the minimax level. After implementing MCTS and refactoring, a benchmark was run for different parameters, which lead to an optimization of the win rate over the parameters of the search.
+\section{Rules of the Checkers game}
+Let's briefly go through the rules of Checkers game. Particular terms will be used and highlighted, that will be important for the algorithm. \\
+
+The game opposes two adversary, here named \code{RED} and \code{WHITE}, and consists of a \term{board} and \term{pieces} on it, each belonging to one player. Each piece then has a color, and the board has pieces on it. Here are some additional information :
+\begin{itemize}[label=$\blacktriangleright$]
+    \item A board can call a function to get all the pieces of a certain color
+    \item It is possible to move a piece of the board using a \code{move} function
+    \item A piece has a defined \term{position} $(x,y)$ where $x$ denotes the row and $y$ the column of the piece. A piece is hence defined by a color and its position : $P = (C, x, y)$
+\end{itemize}
+
+\subsection{Beginning of the game}
+Each player has 12 pieces, that begin at the same position for every game, and the starting position is the conventional position for Checkers game. From here, the \code{WHITE} begins (by convention) and can perform a move.
+\subsection{Movements}
+In this section, we define with words how a player can move a piece. We could define it in an algorithmic way, but this wouldn't be particularly relevant for the sake of this report. \\
+
+A player can only \term{move} a piece in diagonal, going forward, and can move only one row forward, unless an ennemy piece is on its way. In this case, if the piece can reach a place on the board and some enemy pieces are on its way, the enemy pieces are discarded and the initial piece can find its final destination. We say that the pieces has \term{skipped} $n$ pieces if $n$ enemy pieces were discarded. \\
+
+If a piece reaches the opposite side of the board, it becomes a \term{queen} and can from now on move backwards.
+\subsection{Endgame}
+A game ends when
+\begin{itemize}
+    \item a player has no pieces left : the adversary wins ;
+    \item all remaining pieces are queens and no piece was discarded in the last 20 moves : it ends as a draw.
+\end{itemize}
+
+
+\section{Implementation of MCTS to Checkers}
+To implement the tree search, we need to define a tree and the policies associated to the search. Each time the AI has to play, it calls the algorithm, beginning to build the tree (as described in the introduction). Once the tree is built, it selects the best move according to a policy that will be described further.
+
+\subsection{Nodes}
+A node in the tree corresponds to
+\begin{itemize}
+    \item The parent node
+    \item A \term{state} of the game : a \code{board} element
+    \item The move that lead from previous node to this one (\textit{parent action}) : a \code{move} element
+    \item \code{visits} : number of times that this node was visited during the search
+    \item \term{reward} : number of times that this node led to victory
+\end{itemize}
+When the AI is instanciated, the root node has no parent and no parent action, \code{visits} is set to 1 and \code{reward} is set to 0. \\
+
+The resulting constructor for the class \code{MCNode} can be found on listing \ref{listing:constructor}.
+
+\subsection{Selection policy}
+To select a child node from which perform a simulation, the current node first needs to check if it has children, and if so, if all children have been explored. That is, the current node builds a list of possible children (resulting from the possible moves) and looks for children that are not currently in the tree. \\
+
+Thus, if the node is currently not \term{fully explored}, we \term{expand} the current node. If the node is fully explored, we select the \term{best child} to perform the simulation. \\
+
+Intuitively, if there is a sequence of fully explored nodes that leads to a leaf, this will be the privileged path. Otherwise, the algorithm will return the first created child node of a non-fully-explored node. This yields in listing \ref{listing:selection}.
+
+\subsection{Expansion}
+When a node $N$ needs to be extended, first a list of possible moves is created. Then, a \rouge{random move $r$ is drawn}\footnote{pour l'instant. a modifier si on change} and a node $N_r$ is created from this move, having $N$ as \term{parent node} and $r$ as \term{parent action}. This yields in listing \ref{listing:expand}.
+\subsection{Best child policy}
+There are multiple calls to the best-child policy :
+\begin{itemize}
+    \item When the tree is built and we need to perform an actual choice : we choose the best child node of the root node 
+    \item During the selection, when a node is fully explored and we need to go down a level to look for a leaf node to select or a node to expand. \\
+\end{itemize}
+
+During the exploration of the tree, the attributes \code{reward} and \code{visits} of each node are updated, such that at any time, it is possible to define, for each node, a value evaluating the node. We chose the following values\footnote{Insérer source wikipédia} :
+$$
+\begin{array}{lll}
+    \blacktriangleright \text{Exploration} &d(N) &= \dfrac{\code{N.reward}}{\code{N.visits}} \\ \strut \\
+    \blacktriangleright \text{Exploitation} &e(N) &= \sqrt{\dfrac{\log_2{\code{N.visits}}}{\code{N.visits}}} \\ \strut \\
+    \blacktriangleright \text{Score} &s(N, w_e) &= d(N) + e(N)\cdot w_e \\
+\end{array} \; ,
+$$
+where $w_e$ is a parameter to define, to make the famous trade-off between exploitation and exploration. \\
+
+Once this score computed for each child node, we select the one with the best score (or a random one among the equivalent children).
+\subsection{Simulation : introducing heuristics}
+Once a node is selected, we can simulate a game until a final position is reached. The game simulation is done by playing heuristic-based moves. We defined some heuristics to evaluate the quality of a move, and the possible moves are sorted according to this evaluation. \\
+
+Hence, the game can be simulated by choosing the best move, generating a new board, and changing the player's turn accordingly.
+
+\subsubsection{Heuristic 1}
+\subsubsection{Heuristic 2}
+\subsubsection{Heuristic 3}
+\subsubsection{Heuristic 666}
+\section{Genetic Algorithm to tune parameters}
+\subsection{Parameters to find}\label{params}
+The implemented genetic algorithm allows to calculate the value of some parameters in order to improve the main Monte-Carlo algorithm which plays checkers. These parameters are : 
+\begin{itemize}
+    \item the number of iterations
+    \item the safety factor (see Safe heuristic)
+    \item the exploitation factor.
+\end{itemize}
+Except for the number of iterations, the factors to be found can be between 0 and 1 and are there to determine the importance of the coded heuristics.
+\subsection{Algorithm}
+\subsubsection{First generation of parents}
+The algorithm starts with a random generation of "Villagers" (representing the population). \textit{POP\_SIZE} villagers are created and their parameters are randomly drawn.
+\subsubsection{Simulation of games}
+For each villager, a thread is created to make him play against Minimax \textit{NB\_GAMES} times. This saves a lot of time. Once all the games are finished, the parents can be ranked from best to worst. The quality of a parent is defined by the following fraction,
+\begin{center}
+    $\frac{reward}{nb\_simu}$
+\end{center}
+The \textit{reward} is the number of points recovered for all games played and \textit{nb\_simu} is the number of games.
+\subsubsection{Evolution of the population}
+Once the population has finished playing, merging can begin. \textit{NB\_KEEP} parents are kept from the current population (the best) to create the next one. Pairs are then formed and there will be as many pairs as there are individuals missing in order to have the same amount of population at every generation. Each couple formed creates a new child villager through the single point cross-over method.\\
+After merging, one or some children are eventually mutated. The rate of mutations is determined with the global parameter \textit{RATE\_MUTATION}. For every new villager, the algorithm picks a random real between 0 and 1, if the real is smaller than the rate, a mutation occurs on the villager. Then a parameter to determine (cf. \ref{params})
+is chosen randomly and a mutation is done. If it is the number of iterations, it's just increases until it reaches the maximum. If it is one of the factors, the parameter is transform into a binary number and one bit is switched.
+\subsubsection{Continuation and end}
+The loop starts again with the newly generated population. Each parent plays a certain number of games, receives a reward, and is allowed to play a game... The algorithm stops when the convergence criterion is checked. 
+ATTENTION ON DOIT CHANGER CE CRITERE D'AILLEURS
+\section{Results}
+
+\begin{appendices}
+\section{Listings}
+\begin{lstlisting}[language=python, label=listing:constructor, caption={Constructor of a Monte-Carlo Tree-Search Node}]
+    class MCNode:
+        def __init__(self, state: Board, color, nb_king_moved, max_it, parent=None, move: Move = None):
+            self.state: Board = state
+            self.color = color
+            self.adv_color = WHITE if self.color == RED else RED
+            self.reward = 0
+            self.visits = 1  # We always visit newly created node
+            self.parent = parent
+            self.parent_action = move
+            self.children: List[MCNode] = []
+            self.children_moves = []
+            self.max_it = max_it
+            self.nb_king_moved = nb_king_moved  # To keep a track to see if the game needs to end
+            return
+    \end{lstlisting}
+
+    
+    \begin{algorithm}
+    \caption{Selection of a node. Calls the \term{Best Child policy} and the \term{Expansion} procedure.}\label{listing:selection}
+    \begin{algorithmic}
+        \Procedure{select}{$N$}
+        \State $N$\Comment{MC Root Node}
+        \State CurrentNode = $N$ 
+        \While {CurrentNode is not leaf} 
+        \If 
+        {CurrentNode is not fully explored} 
+        \State \Return CurrentNode.\term{Expand}()
+        \Else 
+        \State CurrentNode = \term{BestChild}(CurrentNode)
+        \EndIf
+        \EndWhile
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+²
+\begin{algorithm}
+    \caption{Expansion of a node}\label{listing:expand}
+    \begin{algorithmic}
+    \Procedure{expand}{$N$}
+    \State $N$\Comment{Current MC Node}
+    \State $r = $ random(RemainingMoves(N))
+    \State newBoard = $N$.board.simulateMove($r$)
+    \State $N_r = $ MCNode($N$, $r$, newBoard)
+    \State \Return $N_r$
+    \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+\end{appendices}
+\end{document}

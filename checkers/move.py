@@ -5,7 +5,7 @@ from checkers.piece import Piece
 
 
 class Move:
-    def __init__(self, origin_state, color, origin_piece, destination_loc, skip):
+    def __init__(self, origin_state, color, origin_piece:Piece, destination_loc, skip):
         self.origin_state = origin_state
         self.color = color
         self.piece = origin_piece
@@ -38,7 +38,6 @@ class Move:
         final_eval = self.final_state.eval(self.color)
         return final_eval - origin_eval + len(self.skip)
 
-
     def compute_final_state(self):
         col, row = self.get_loc()
         skip = self.skip
@@ -48,7 +47,9 @@ class Move:
         return
 
     def __repr__(self):
-        return("From board {} move piece {} to {} ({} piece taken). Value = {}".format(self.origin_state, self.piece, self.loc, len(self.skip), self.value ))
+        sentence = "From board {} move piece {} to {} ({} piece taken). Value = {}".format(self.origin_state, self.piece, self.loc, len(self.skip), self.value )
+        log = "{} -> {}".format(self.piece, self.loc)
+        return log
 
     def is_equivalent_to(self, other_move):
         # TODO ajouter comparaison entre les states (les board)
