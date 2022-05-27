@@ -4,6 +4,8 @@ import random
 from collections import defaultdict
 from copy import deepcopy
 
+import pickle
+
 from typing import List
 
 from checkers.move import Move
@@ -13,7 +15,7 @@ RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 
 
-def montecarlots(board, player, game, tree=None, max_it=100):
+def montecarlots(board, player, game, tree=None, first=False, max_it=100):
     """
     Proceeds a Monte Carlo tree search on the given board, considering that it's given player's turn.
     A possible precomputed search tree can be given to allow deeper computations
@@ -25,6 +27,9 @@ def montecarlots(board, player, game, tree=None, max_it=100):
     :return: Board after best move, node after best move (the future root), move to go from current to chosen board
     """
     nb_king_moved = game.king_moved
+    if first:
+        # print("loaded pickle file")
+        tree = pickle.load(open("tree.p", "rb"))
     if not tree:
         # New tree
         tree = MCNode(board, player, nb_king_moved, max_it)
