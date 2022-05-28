@@ -28,7 +28,6 @@ class Game:
 
     def update(self):
         self.board.draw(self.display)
-        # self.board.test_heuristics()  # todo : is this supposed to be here?
         pygame.display.update()
 
 
@@ -40,7 +39,7 @@ class Game:
     def update_log(self, move, move_time, ai_type, count_red, count_white):
         if move is not None :
             color = "WHITE" if self.turn == WHITE else "RED"
-            conn = create_connection("SQLite/Games_v6.db")
+            conn = create_connection("SQLite/GLOBAL.db")
             insert_move(table=self.table_name,
                         turn=int(self.num_turn),
                         color=color,
@@ -53,18 +52,14 @@ class Game:
                         time=move_time,
                         count_red=count_red,
                         count_white=count_white,
-                        conn=conn)
+                        conn=conn,
+                        n=self.max_it,
+                        p=MCNode.exploit_param)
             close_connection(conn)
 
-            # TODO : delete, normally its safe
-            # log_file = open(self.log_file_name, "a")
-            # log_file.write(
-            #     "{}; {}; {}; {}; {}; {}; {}; {}\n".format(int(self.num_turn), color, ai_type, move, len(move.skip), move_time, count_red, count_white)
-            # )
-            # log_file.close()
 
     def update_log_winner(self, winner):
-        conn = create_connection("SQLite/Games_v6.db")
+        conn = create_connection("SQLite/GLOBAL.db")
         insert_move(table=self.table_name,
                     turn=int(self.num_turn),
                     color=winner,
@@ -77,15 +72,11 @@ class Game:
                     time=-1,
                     count_red=-1,
                     count_white=-1,
-                    conn=conn)
+                    conn=conn,
+                    n=self.max_it,
+                    p=MCNode.exploit_param)
         close_connection(conn)
 
-        # TODO : delete, normally its safe
-        # log_file = open(self.log_file_name, "a")
-        # log_file.write(
-        #     "Winner : {}\n".format("White" if winner == WHITE else "Red")
-        # )
-        # log_file.close()
 
     def _init(self, logging):
         self.selected = None
@@ -101,15 +92,10 @@ class Game:
     def _init_log(self):
         self.table_name = "m{}_h{}_t{}".format(self.max_it, MCNode.exploit_param, int(time.time()))
         # self.table_name = "test"
-        conn = create_connection("SQLite/Games_v6.db")
+        conn = create_connection("SQLite/GLOBAL.db")
         create_game_table(self.table_name, conn)
         close_connection(conn)
 
-        # TODO : delete, normally its safe
-        #self.log_file_name = "heuristic_stats/NoHeuristicsAcc/m{}_h{}_{}_NOHEURISTICS.csv".format(self.max_it, MCNode.exploit_param, time.time())
-        #log_file = open(self.log_file_name, "w")
-        #log_file.write("Turn; Color; AI; Move; Skip; Time; Num. Reds; Num. Whites \n")
-        #log_file.close()
 
     def winner(self):
         if self.king_moved >= 20:

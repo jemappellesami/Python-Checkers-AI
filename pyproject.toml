@@ -9,6 +9,7 @@ python = "^3.10"
 pygame = "^2.1.2"
 pandas = "^1.4.2"
 sqlite3-api = "^2.0.4"
+plotly = "^5.8.0"
 
 [tool.poetry.dev-dependencies]
 

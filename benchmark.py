@@ -58,30 +58,40 @@ def make_move(game, p, n, run, tree):
 
 
 def main():
+    n_iter_list = [5000, 10000, 15000, 20000]
+    p_list = [25, 50, 75, 100, 150, 175, 200, 400]
+    repetitions = range(10)
+    n_tot = len(n_iter_list)*len(p_list)*len(repetitions)
+    progression = 0
     # TODO : perform benchmark with other n
-    for n in range(0, 5) :
-        run = True
-        max_it = 20000
-        game = Game(parameters=[max_it, 0, 1], logging=True)
+    for n_iter in n_iter_list :
+        print("Performing benchmark for max_it ", n_iter)
+        for param in p_list :
+            print("\t p = ", param)
+            for i in repetitions :
+                progression += 1
+                print("\t\tNumber ", i, "/10\t\t Total progression ", progression/n_tot, " %")
+                run = True
+                max_it = n_iter
+                game = Game(parameters=[max_it, 0, param], logging=True)
 
-        p = ["mcts", "minimax"]
-        most_recent_tree = None
+                p = ["mcts", "minimax"]
+                most_recent_tree = None
 
-        while run:
+                while run:
 
-            n = 0 if game.turn == WHITE else 1
-            count_red = len(game.board.get_all_pieces(RED))
-            count_white = len(game.board.get_all_pieces(WHITE))
-            run, most_recent_tree, move, move_time = make_move(game, p, n, run, most_recent_tree)
+                    n = 0 if game.turn == WHITE else 1
+                    count_red = len(game.board.get_all_pieces(RED))
+                    count_white = len(game.board.get_all_pieces(WHITE))
+                    run, most_recent_tree, move, move_time = make_move(game, p, n, run, most_recent_tree)
 
-            # Keep track in the log file
-            game.update_log(move, move_time, p[n], count_red, count_white)
+                    # Keep track in the log file
+                    game.update_log(move, move_time, p[n], count_red, count_white)
 
-            if game.winner() is not None:
-                run = False
+                    if game.winner() is not None:
+                        run = False
 
-        game.update_log_winner(game.winner())
-        print("End of game with maxit {}".format(max_it))
+                game.update_log_winner(game.winner())
 
 
 main()

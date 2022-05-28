@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import sqlite3
-
+import plotly.express as px
 
 # Run from SQLite directory
 conn = sqlite3.connect("Games.db")
@@ -15,6 +15,12 @@ summary_df = pd.DataFrame(columns=[
     'argmin',
     'max',
     'argmax',
+])
+
+extended_df = pd.DataFrame(columns=[
+    "p",
+    "tour",
+    "time"
 ])
 
 def analyze_moves(game_df, description, ai_type='mcts') :
@@ -32,7 +38,8 @@ def analyze_moves(game_df, description, ai_type='mcts') :
         'argmin' : [min_turn],
         'max' : [max_time],
         'argmax' : [max_turn],
-        'num_turns' : [num_turns]
+        'num_turns' : [num_turns],
+        'p' : [0.25]
     })
 
     global summary_df
@@ -45,7 +52,7 @@ def analyze_moves(game_df, description, ai_type='mcts') :
 # TODO : plot num_turns by game, function of max_it
 if __name__ == '__main__':
     cur = conn.cursor()
-    cur.execute("ATTACH \"Games_v3.db\" AS my_db")
+    cur.execute("ATTACH \"Games_v5.db\" AS my_db")
     cur.execute("SELECT name FROM my_db.sqlite_master WHERE type='table';")
     res = cur.fetchall()
     tables = [table[0] for table in res]
@@ -54,3 +61,5 @@ if __name__ == '__main__':
         analyze_moves(df, table)
 
     print(summary_df)
+    fig = px.box(summary_df, x="p", y="mean", points="all")
+    fig.show()

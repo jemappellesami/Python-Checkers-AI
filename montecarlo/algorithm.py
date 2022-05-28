@@ -36,7 +36,8 @@ def montecarlots(board, player, game, tree=None, max_it=100):
 
 
 class MCNode:
-    exploit_param = 0.25
+    # p = 1 was the best parameter (won 2 games over 10)
+    exploit_param = 1
 
     def __init__(self, board: Board, color, nb_king_moved, max_it, parent=None, previous_move: Move = None):
         """
@@ -129,7 +130,8 @@ class MCNode:
         for c in self.children:
             exploitation = c.reward / c.visits
             exploration = math.sqrt(math.log2(c.visits) / c.visits)
-            score = exploration + exploitation * self.exploit_param
+            score = exploration + exploitation * self.exploit_param/100
+            # division by 100 because of the benchmark (on peut pas mettre de décimale pour le nom des tables alors bref)
             if score == best_score:
                 best_children.append(c)
             elif score > best_score:

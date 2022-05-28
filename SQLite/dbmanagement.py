@@ -39,7 +39,9 @@ def create_game_table(game, conn) :
             skip INT,
             time FLOAT,
             numReds INT,
-            numWhites INT
+            numWhites INT,
+            param_n_iter INT,
+            param_p FLOAT
         )
     """.format(game)
     cur = conn.cursor()
@@ -47,10 +49,10 @@ def create_game_table(game, conn) :
     cur.execute(table_query)
     conn.commit()
 
-def insert_move(table,turn, color, ai_type, origin_x, origin_y, final_x, final_y, skip, time, count_red, count_white, conn) :
+def insert_move(table,turn, color, ai_type, origin_x, origin_y, final_x, final_y, skip, time, count_red, count_white, conn, n, p) :
     cur = conn.cursor()
     insert_query = """
-        INSERT INTO {}(turn, color, AI_type, origin_x, origin_y, final_x, final_y, skip, time, numReds, numWhites)
+        INSERT INTO {}(turn, color, AI_type, origin_x, origin_y, final_x, final_y, skip, time, numReds, numWhites, param_n_iter, param_p)
         VALUES({},
             '{}',
             '{}',
@@ -61,8 +63,10 @@ def insert_move(table,turn, color, ai_type, origin_x, origin_y, final_x, final_y
             {},
             {},
             {},
+            {},
+            {},
             {})
-    """.format(table,turn, color, ai_type, origin_x, origin_y, final_x, final_y, skip, time, count_red, count_white)
+    """.format(table,turn, color, ai_type, origin_x, origin_y, final_x, final_y, skip, time, count_red, count_white, n, p)
     cur.execute(insert_query)
     conn.commit()
 
