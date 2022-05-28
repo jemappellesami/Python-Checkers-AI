@@ -24,11 +24,11 @@ def get_row_col_from_mouse(pos):
     return row, col
 
 
-def mcts_ai_move(game, run, tree):
+def mcts_ai_move(game, run, tree, first):
     """
     Executes a move on the board determined by the MCTS AI.
     """
-    new_board, new_tree, best_move = montecarlots(game.board, game.turn, game, tree)
+    new_board, new_tree, best_move = montecarlots(game.board, game.turn, game, tree, first)
     if new_board is None or best_move is None:
         # print("end of game?")  # DEBUG
         run = False
@@ -72,24 +72,24 @@ def minimax_ai_move(game, tree):
 #     # FIXME: implement the correct function, currently is a copy of minimax_ai_move
 
 
-def make_move(game, p, n, run, tree):
+def make_move(game, p, n, run, tree, first):
     """
     Executes a move on the board determined by the arguments chosen at game launch.
     """
     start_time = time.time()
-    run, tree, best_move = make_ai_move(game, n, p, run, tree)
+    run, tree, best_move = make_ai_move(game, n, p, run, tree, first)
     end_time = time.time()
     execution_time = end_time - start_time
 
     return run, tree, best_move, execution_time
 
 
-def make_ai_move(game, n, p, run, tree):
-    # print("Player {} ({} AI) is thinking".format(n + 1, p[n].upper()))
+def make_ai_move(game, n, p, run, tree, first):
+    #print("Player {} ({} AI) is thinking".format(n + 1, p[n].upper()))
     if p[n] == "minimax":
         tree, best_move = minimax_ai_move(game, tree)
     elif p[n] == "mcts":
-        run, tree, best_move = mcts_ai_move(game, run, tree)
+        run, tree, best_move = mcts_ai_move(game, run, tree, first)
     else:
         print("Error with AI option")
         best_move = None
@@ -137,6 +137,7 @@ def main():
 
     winner = ''
     run = True
+    first = True
     game.update()
 
     while run:
@@ -166,7 +167,7 @@ def main():
                     move_made = True
                     most_recent_tree = None
         else:
-            run, most_recent_tree, best_move, execution_time = make_move(game, p, n, run, most_recent_tree)
+            run, most_recent_tree, best_move, execution_time = make_move(game, p, n, run, most_recent_tree, first)
             move_made = True
         if not run:
             winner = "RED" if n == 0 else "WHITE"
@@ -179,6 +180,8 @@ def main():
             game.update()
         if selected:
             game.human_update()
+
+        first = False
 
         # pygame.time.wait(500)
     print("And the winner is : ", winner)
