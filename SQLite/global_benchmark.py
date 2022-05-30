@@ -1,3 +1,4 @@
+from cProfile import label
 import pandas as pd
 import sqlite3
 import plotly.express as px
@@ -90,7 +91,7 @@ def fill_tables(conn) :
             if "_h400" in table:
                 insert_time_n_box_plot(table, cur, conn)
             # Build the p-box plot
-            if "m20000" in table:
+            if "m15000" in table:
                 insert_time_p_box_plot(table, cur, conn)
     cur.close()
     return cur
@@ -108,11 +109,58 @@ if __name__ == '__main__':
     )
 
     n_bp_df = pd.read_sql_query("SELECT * FROM box_plot_n_results ;", conn)
-    fig = px.box(n_bp_df, x="n", y="time", points="all")
-    fig.update_layout(layout)
-    fig.show()
+    # fig = px.box(n_bp_df, x="n", y="time", points="all")
+    # fig.update_layout(layout)
+    # fig.show()
 
     p_bp_df = pd.read_sql_query("SELECT * FROM box_plot_p_results ;", conn)
-    fig = px.box(p_bp_df, x="p", y="time", points="all")
-    fig.update_layout(layout)
+    p_bp_df["p"] = p_bp_df["p"]/100
+
+
+    # fig = px.box(p_bp_df,
+    #     x="p",
+    #     y="time",
+    #     points="all",
+    #     labels=dict(
+    #         time="Execution time (s)",
+    #         p="Trade-off parameter p"
+    #     )
+    #     )
+    fig = px.box(n_bp_df,
+        x="n",
+        y="time",
+        points="all",
+        labels=dict(
+            time="Execution time (s)",
+            n="Number of iterations n"
+        )
+        )
+    
+    fig.update_yaxes( # the y-axis is in dollars
+        ticksuffix=""
+    )
+
+    fig.update_layout( # customize font and legend orientation & position
+        font_family="Palatino",
+        font_size=24,
+        legend=dict(
+            title="", orientation="h", y=1, yanchor="bottom", x=0.5, xanchor="center"
+        ),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
+    fig.update_xaxes(showline=True,
+        linewidth=2,
+        linecolor='black',
+        mirror=True,
+        showgrid=True,
+        gridwidth=0.05,
+        gridcolor='Gray')
+    fig.update_yaxes(showline=True,
+        linewidth=2,
+        linecolor='black',
+        mirror=True,
+        showgrid=True,
+        gridwidth=0.05,
+        gridcolor='Gray')
     fig.show()
