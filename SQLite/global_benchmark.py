@@ -1,43 +1,118 @@
 import pandas as pd
-import numpy as np
 import sqlite3
 import plotly.express as px
+from plotly.graph_objs import *
 
-# Run from SQLite directory
-conn = sqlite3.connect("GLOBAL.db")
 
-drop_query = """
+DROP_QUERY_FINAL_RESULTS = """
     DROP TABLE IF EXISTS finalresults ;
 """
-
-create_query = """
-    CREATE TABLE finalresults(p INT, n INT, winner VARCHAR(10)) ;   
+DROP_QUERY_P = """
+    DROP TABLE IF EXISTS box_plot_p_results ;
+"""
+DROP_QUERY_N = """
+    DROP TABLE IF EXISTS box_plot_n_results ;
 """
 
-if __name__ == '__main__':
+CREATE_QUERY_FINAL_RESULTS = """
+    CREATE TABLE finalresults(p INT, n INT, winner VARCHAR(10)) ; 
+"""
+CREATE_QUERY_P = """
+    CREATE TABLE box_plot_p_results(p INT, time FLOAT) ;   
+"""
+CREATE_QUERY_N = """    
+    CREATE TABLE box_plot_n_results(n INT, time FLOAT) ;    
+"""
+
+INITIAL_QUERIES = [DROP_QUERY_FINAL_RESULTS,
+                   DROP_QUERY_P,
+                   DROP_QUERY_N,
+                   CREATE_QUERY_FINAL_RESULTS,
+                   CREATE_QUERY_P,
+                   CREATE_QUERY_N]
 
 
-    cur = conn.cursor()
-    cur.execute(drop_query)
-    cur.execute(create_query)
-    cur.close()
-    conn.commit()
-
-    cur = conn.cursor()
-    cur.execute("ATTACH \"GLOBAL.db\" AS my_db")
-    cur.execute("SELECT name FROM my_db.sqlite_master WHERE type='table';")
-    res = cur.fetchall()
-    tables = [table[0] for table in res]
-    for table in tables :
-        if table != "finalresults" :
-            insert_result_query = """
+def insert_result(table, cur, conn):
+    insert_result_query = """
                 INSERT INTO finalresults(p, n, winner)
                     SELECT param_p, param_n_iter, color 
                     FROM {} 
                     WHERE AI_type == 'END';
             """.format(table)
-            print(table)
-            cur.execute(insert_result_query)
-            conn.commit()
+    cur.execute(insert_result_query)
+    conn.commit()
+
+
+def insert_time_n_box_plot(table, cur, conn) :
+    insert_query = """
+        INSERT INTO box_plot_n_results(n, time)
+            SELECT param_n_iter, time
+            FROM {}
+            WHERE AI_type == 'mcts' ;
+    """.format(table)
+    cur.execute(insert_query)
+    conn.commit()
+
+def insert_time_p_box_plot(table, cur, conn) :
+    insert_query = """
+        INSERT INTO box_plot_p_results(p, time)
+            SELECT param_p, time
+            FROM {}
+            WHERE AI_type == 'mcts' ;
+    """.format(table)
+    cur.execute(insert_query)
+    conn.commit()
+
+
+def initialize_tables(conn) :
+    # Creation of the benchmark tables
+    cur = conn.cursor()
+    for query in INITIAL_QUERIES :
+        cur.execute(query)
+        conn.commit()
     cur.close()
 
+    return cur
+
+def fill_tables(conn) :
+    # Iteration over the tables, and filling the benchmark tables
+    cur = conn.cursor()
+    cur.execute("ATTACH \"GLOBAL.db\" AS my_db")
+    cur.execute("SELECT name FROM my_db.sqlite_master WHERE type='table';")
+    res = cur.fetchall()
+    tables = [table[0] for table in res]
+    for table in tables:
+        # Insert end of games in a combined table
+        if "_h" in table:
+            insert_result(table, cur, conn)
+
+            # Build the n-box plot
+            if "_h400" in table:
+                insert_time_n_box_plot(table, cur, conn)
+            # Build the p-box plot
+            if "m20000" in table:
+                insert_time_p_box_plot(table, cur, conn)
+    cur.close()
+    return cur
+
+if __name__ == '__main__':
+    # Run from SQLite directory
+    conn = sqlite3.connect("GLOBAL.db")
+    # initialize_tables(conn)
+    # fill_tables(conn)
+
+    # Begin to plot
+    layout = Layout(
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
+
+    n_bp_df = pd.read_sql_query("SELECT * FROM box_plot_n_results ;", conn)
+    fig = px.box(n_bp_df, x="n", y="time", points="all")
+    fig.update_layout(layout)
+    fig.show()
+
+    p_bp_df = pd.read_sql_query("SELECT * FROM box_plot_p_results ;", conn)
+    fig = px.box(p_bp_df, x="p", y="time", points="all")
+    fig.update_layout(layout)
+    fig.show()
