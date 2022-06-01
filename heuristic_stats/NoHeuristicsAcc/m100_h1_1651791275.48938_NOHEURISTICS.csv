@@ -1,3 +1,0 @@
-Turn; Color; AI; Move; Skip; Time; Num. Reds; Num. Whites 
-1; 1; mcts; (2,5) -> (3, 6); 0; 2.46866512298584; 12; 12
-2; 0; minimax; (5,6) -> (4, 7); 0; 0.34902191162109375; 12; 12

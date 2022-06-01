@@ -31,7 +31,7 @@ You can then launch the game in the newly-created virtual environment.
 When launching the game, you will need to choose which algorithms you will face or which will face each other, for instance:
 
 ```bash
-poetry run python benchmark.py --p1 minimax --p2 mcts
+poetry run python main.py --p1 minimax --p2 mcts
 ```
 
 starts a game Minimax AI vs. MCTS AI.
@@ -39,7 +39,7 @@ starts a game Minimax AI vs. MCTS AI.
 It is possible to play against an AI by adapting the command as follows:
 
 ```bash
-poetry run python benchmark.py --p1 human --p2 mcts
+poetry run python main.py --p1 human --p2 mcts
 ```
 
 You will then need to select which piece to move and where to place it during your turn.
@@ -61,4 +61,15 @@ optional arguments:
 
 ```
 
+## Benchmark mode
+A benchmark was implemented to test the MCTS AI. It performs 320 test games, 10 for each of the 32 sets of tested parameters.
+
+It uses SQLite to store the data, in the SQLite folder. 
+
+To run it :
+```bash
+poetry run python benchmark.py
+```
+
+And it takes about 26h to complete on a **good machine**.
 ![checkers screen](./assets/checkers.png)

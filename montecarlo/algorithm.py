@@ -15,7 +15,7 @@ RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 
 
-def montecarlots(board, player, game, tree=None, first=False, max_it=100):
+def montecarlots(board, player, game, tree=None, first=False, max_it=20000):
     """
     Proceeds a Monte Carlo tree search on the given board, considering that it's given player's turn.
     A possible precomputed search tree can be given to allow deeper computations
