@@ -96,36 +96,54 @@ def fill_tables(conn) :
     cur.close()
     return cur
 
+
+def set_default_layout(fig):
+    fig.update_layout({
+        'font': {'family': "serif", 'size': 18},
+        'plot_bgcolor': 'rgba(0,0,0,0)',
+        'xaxis': {
+            'showgrid': True,
+            'linecolor': 'black',
+            'linewidth': 1,
+            'mirror': True,
+            'gridcolor': 'grey',
+            'gridwidth': 0.1,
+        },
+        'yaxis': {
+            'linecolor': 'black',
+            'linewidth': 1,
+            'gridcolor': 'grey',
+            'gridwidth': 0.1,
+            'mirror': True,
+            'exponentformat': 'power',
+        },
+    })
 if __name__ == '__main__':
     # Run from SQLite directory
     conn = sqlite3.connect("GLOBAL.db")
     # initialize_tables(conn)
     # fill_tables(conn)
 
-    # Begin to plot
-    layout = Layout(
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)'
-    )
 
     n_bp_df = pd.read_sql_query("SELECT * FROM box_plot_n_results ;", conn)
-    # fig = px.box(n_bp_df, x="n", y="time", points="all")
-    # fig.update_layout(layout)
-    # fig.show()
+
 
     p_bp_df = pd.read_sql_query("SELECT * FROM box_plot_p_results ;", conn)
     p_bp_df["p"] = p_bp_df["p"]/100
 
 
-    # fig = px.box(p_bp_df,
-    #     x="p",
-    #     y="time",
-    #     points="all",
-    #     labels=dict(
-    #         time="Execution time (s)",
-    #         p="Trade-off parameter p"
-    #     )
-    #     )
+    fig = px.box(p_bp_df,
+        x="p",
+        y="time",
+        points="all",
+        labels=dict(
+            time="Execution time (s)",
+            p="Trade-off parameter p"
+        )
+        )
+    set_default_layout(fig)
+    fig.show()
+
     fig = px.box(n_bp_df,
         x="n",
         y="time",
@@ -135,32 +153,7 @@ if __name__ == '__main__':
             n="Number of iterations n"
         )
         )
-    
-    fig.update_yaxes( # the y-axis is in dollars
-        ticksuffix=""
-    )
+    set_default_layout(fig)
 
-    fig.update_layout( # customize font and legend orientation & position
-        font_family="Palatino",
-        font_size=24,
-        legend=dict(
-            title="", orientation="h", y=1, yanchor="bottom", x=0.5, xanchor="center"
-        ),
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)'
-    )
-    fig.update_xaxes(showline=True,
-        linewidth=2,
-        linecolor='black',
-        mirror=True,
-        showgrid=True,
-        gridwidth=0.05,
-        gridcolor='Gray')
-    fig.update_yaxes(showline=True,
-        linewidth=2,
-        linecolor='black',
-        mirror=True,
-        showgrid=True,
-        gridwidth=0.05,
-        gridcolor='Gray')
+
     fig.show()
