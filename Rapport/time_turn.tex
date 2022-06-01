@@ -10,9 +10,10 @@ It could be interesting to see if the time of MCTS ends up better than the one o
 This could allow to use both algorithms at their best.
 
 Figure~\ref{fig:benchmark-time_turn} shows this evolution.
-One can notice that as expected the compution time of MCTS decreases with time, by a factor of almost four from the beginning to the end of the game.
-Most of this evolution happens in the first twenty-five moves. 
-However, minimax times are so low (for similar final results) that mcts never reaches them. 
+One can notice that as expected the computation time of MCTS decreases with time, by a factor of almost four between the beginning to the end of the game.
+Most of this evolution happens in the first twenty-five moves.
+This peak in the beginning is largely due to the large search space the MCTS has to go through. Indeed, MCTS builds a tree from scratch every time it starts the game. A possible way of mitigating this is using a pre-built tree such that MCTS is better able to exploit possible move rather than explore the search space. This exploration is the same at the beginning of every game and can thus be memorized. This can be achieved through serialization of a tree.
+However, minimax times are so low (for similar final results) that MCTS never reaches them. 
 Improvements in the implementation could change this as mentioned in section~\ref{sec:param_approach}.
 
 \begin{figure}[ht]
