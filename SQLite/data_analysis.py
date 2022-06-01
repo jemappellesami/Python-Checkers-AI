@@ -18,6 +18,30 @@ summary_df = pd.DataFrame(columns=[
     'argmax',
 ])
 
+
+def set_default_layout(fig):
+    fig.update_layout({
+        'font': {'family': "serif", 'size': 18},
+        'plot_bgcolor': 'rgba(0,0,0,0)',
+        'xaxis': {
+            'showgrid': True,
+            'linecolor': 'black',
+            'linewidth': 1,
+            'mirror': True,
+            'gridcolor': 'grey',
+            'gridwidth': 0.1,
+        },
+        'yaxis': {
+            'linecolor': 'black',
+            'linewidth': 1,
+            'gridcolor': 'grey',
+            'gridwidth': 0.1,
+            'mirror': True,
+            'exponentformat': 'power',
+        },
+    })
+
+
 def analyze_moves(game_df, description, ai_type='mcts') :
     ai_moves = game_df.loc[game_df['AI_type'] == ai_type]
 
@@ -49,6 +73,7 @@ def nb_turns_in_time_t(tables):
         df['game_id'] = idx
         df_full = pd.concat([df_full, df], ignore_index=True)
     fig = px.histogram(df_full, x="time", color="AI_type", nbins=20)
+    set_default_layout(fig)
     fig.show()
 
 
@@ -66,6 +91,7 @@ def analyze_avg_time(tables):
         x='turn', y='time',
         color='AI_type'
     )
+    set_default_layout(fig)
     fig.show()
 
 
