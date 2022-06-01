@@ -1,4 +1,4 @@
-\subsection{Initial parameters and approach}
+\subsection{Initial parameters and approach \label{sec:param_approach}}
 Once the algorithm is written, some initial parameters must be choosen. Here : the number of iterations, that we will note $n$, and the parameter of trade-off between explotation and exploration, that we will note $p$. As the performance of the AI will depend on those, an initial choice was made, arbitrarily, and depending on the behaviour and performance of the AI, they have been modified. \\
 
 The most important conclusion that was pointed out was the fact that the iterations must be \textbf{as fast as possible}, because the more $n$ can grow, the better. This means that the initial \textbf{implementation of the game} must be rethought if it is not optimized for being as fast as possible. Then, during the execution of the algorithm, some \textbf{slow methods} must be avoided, e.g. \code{deepcopy}. Avoid some redundant calls to functions, etc. \\
