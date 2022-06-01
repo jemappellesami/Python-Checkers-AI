@@ -1,5 +1,5 @@
 \subsection{Evolution of the computation time through games}
-Tweaking the settings of MCTS or minimax could in theory allow to reach equivalent results, but these would not be achieved using the same computation time.
+Tweaking the settings of MCTS or minimax could in theory allow to reach equivalent results as minimax but these would not be achieved using the same computation time.
 This section explores this idea by comparing the evolution of this time for both algorithms.
 
 As Monte Carlo Tree Search simulates a game to its end at each iteration it is reasonable to think that the computation
@@ -17,8 +17,7 @@ Improvements in the implementation could change this as mentioned in section~\re
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=\linewidth]{avg_time_per_turn}
-    \caption{Computing time [s] of both used algorithms as a function of the number of turn played.
-    MCTS diminishes but does not reach minimax in these settings.}
+    \includegraphics[width=\linewidth]{plots/AvgTime_n20000.png}
+    \caption{Computing time [s] of both used algorithms (MCTS with $n=20k$) as a function of the number of turn played. MCTS diminishes but does not reach minimax in these settings. The dataset consists in about 80 games with $n=20k$ and 8 different parameters of $p$. However, as $p$ doesn't play a role in the execution time (as shown on figure \ref{fig:benchmark-p_bplot}), we can consider that the 80 games are indeed comparable in their execution times.}
     \label{fig:benchmark-time_turn}
 \end{figure}

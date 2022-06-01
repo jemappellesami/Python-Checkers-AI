@@ -1,3 +1,4 @@
+from curses import KEY_ENTER
 import pandas as pd
 import numpy as np
 import sqlite3
@@ -66,7 +67,7 @@ def analyze_moves(game_df, description, ai_type='mcts') :
     return mean, std, min_time, min_turn, max_time, max_turn
 
 
-def nb_turns_in_time_t(tables):
+def nb_turns_in_time_t(tables, filename):
     df_full = pd.DataFrame(columns=['game_id', 'turn', 'time', 'AI_type'])
     for idx, table in enumerate(tables):
         df = pd.read_sql_query(f'select turn, time, AI_type from {table} where AI_type <> "END";', conn)
@@ -74,11 +75,12 @@ def nb_turns_in_time_t(tables):
         df_full = pd.concat([df_full, df], ignore_index=True)
     fig = px.histogram(df_full, x="time", color="AI_type", nbins=20)
     set_default_layout(fig)
+    fig.write_image(filename)
     fig.show()
 
 
 # TODO : plot num_turns by game, function of max_it
-def analyze_avg_time(tables):
+def analyze_avg_time(tables, filename):
     df_full = pd.DataFrame(columns=['game_id', 'turn', 'time', 'AI_type'])
     for idx, table in enumerate(tables):
         df = pd.read_sql_query(f'select turn, time, AI_type from {table} where AI_type <> "END";', conn)
@@ -92,17 +94,26 @@ def analyze_avg_time(tables):
         color='AI_type'
     )
     set_default_layout(fig)
+    fig.write_image(filename)
     fig.show()
 
 
 if __name__ == '__main__':
     cur = conn.cursor()
-    cur.execute("ATTACH \"Games_v3.db\" AS my_db")
+    cur.execute("ATTACH \"GLOBAL.db\" AS my_db")
     cur.execute("SELECT name FROM my_db.sqlite_master WHERE type='table';")
     res = cur.fetchall()
-    tables = [table[0] for table in res]
-    analyze_avg_time(tables)
-    nb_turns_in_time_t(tables)
+    tables = list([table[0] for table in res])
+
+    # Clean : only keep n=20000
+    keep_n = ["5000", "10000", "15000", "20000"]
+    for n in keep_n :    
+        tables_clean = []
+        for table in tables :
+            if "m{}".format(n) in table :
+                tables_clean.append(table)
+        analyze_avg_time(tables_clean, filename = "plots/AvgTime_n{}.png".format(n))
+        nb_turns_in_time_t(tables_clean, filename = "plots/Histogram_n{}.png".format(n))
     #for table in tables:
         #df = pd.read_sql_query("select * from {} ;".format(table), conn)
         #analyze_moves(df, table)
