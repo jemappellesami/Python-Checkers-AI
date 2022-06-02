@@ -28,11 +28,14 @@ def montecarlots(board, player, game, tree=None, first=False, max_it=20000):
     """
     nb_king_moved = game.king_moved
     if first:
-        # print("loaded pickle file")
-        tree = pickle.load(open("tree.p", "rb"))
+        # load pickle file
+        tree = pickle.load(open("montecarlo/tree.p", "rb"))
     if not tree:
         # New tree
         tree = MCNode(board, player, nb_king_moved, max_it)
+    # if first:
+    #     # save pickle file
+    #     pickle.dump(tree, open("montecarlo/tree.p", "wb"))
     chosen_node = tree.monte_carlo_tree_search()
     if chosen_node is None:
         return None, None, None
